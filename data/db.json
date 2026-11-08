@@ -1,0 +1,438 @@
+{
+  "documents": {
+    "sample-rag-overview": {
+      "id": "sample-rag-overview",
+      "title": "Understanding RAG and Vector Retrieval",
+      "filename": "rag-and-vector-retrieval.md",
+      "fileType": "md",
+      "createdAt": "2026-11-08T13:47:51.040Z",
+      "charCount": 2178,
+      "wordCount": 306,
+      "lineCount": 28,
+      "content": "# Retrieval-Augmented Generation (RAG) Architecture\n\nLarge Language Models (LLMs) possess vast parametric knowledge acquired during pre-training. However, this knowledge is frozen in time and inherently prone to hallucinations when asked about private enterprise data, niche domain facts, or real-time events.\n\nTo overcome these constraints, modern AI engineering utilizes Retrieval-Augmented Generation (RAG). RAG bifurcates knowledge processing into two distinct subsystems: an external retrieval engine and a generative reasoning model.\n\n## Why Chunking Is Foundational\n\nDirectly stuffing entire multi-page manuals or legal contracts into an LLM prompt suffers from severe limitations:\n1. Context Window Costs: Every token passed into an LLM incurs computational latency and financial cost.\n2. Lost in the Middle Phenomenon: Studies demonstrate that LLMs pay high attention to the beginning and ending of lengthy prompts, frequently missing crucial facts embedded in the middle.\n3. Embedding Dilution: Passing an entire 50-page book into a single embedding model produces an averaged, blurry vector that lacks specificity for precise queries.\n\nTherefore, we systematically slice long documents into cohesive fragments known as chunks.\n\n## The Role of High-Dimensional Embeddings\n\nOnce divided, each chunk is passed through an embedding model. Rather than extracting simple keywords, the embedding model maps the deep semantic meaning of the text onto a continuous geometric hypersphere (e.g. 768 or 1536 dimensions).\n\nIn this vector space, geometric proximity reflects conceptual relationship. Phrases sharing the same meaning reside close together even when using completely distinct vocabularies.\n\n## Cosine Similarity and Vector Search\n\nWhen a user submits a question, the query undergoes identical vector transformation. The search engine calculates the cosine angle between the query vector and all chunk vectors in milliseconds:\n\ncosine_similarity = (A · B) / (||A|| * ||B||)\n\nThe highest-scoring chunks are retrieved and injected into the final system prompt as grounded context, enabling the model to generate factually verifiable answers with exact source citations."
+    },
+    "sample-photosynthesis": {
+      "id": "sample-photosynthesis",
+      "title": "The Biochemical Machinery of Photosynthesis",
+      "filename": "photosynthesis-biology.txt",
+      "fileType": "txt",
+      "createdAt": "2026-11-08T13:47:51.042Z",
+      "charCount": 1581,
+      "wordCount": 202,
+      "lineCount": 12,
+      "content": "Photosynthesis is the fundamental biological process through which photosynthetic organisms, primarily plants, algae, and cyanobacteria, convert electromagnetic light energy into chemical potential energy stored within organic molecules.\n\nThe overall chemical equation of oxygenic photosynthesis can be summarized as:\n6 CO2 + 6 H2O + light energy -> C6H12O6 + 6 O2\n\nThis complex pathway occurs inside specialized intracellular organelles termed chloroplasts, predominantly located within the mesophyll cells of plant leaves. The process divides mechanistically into two interdependent phases: light-dependent reactions and light-independent reactions (the Calvin cycle).\n\nIn the light reactions, photon energy is absorbed by specialized pigment molecules, predominantly chlorophyll a and chlorophyll b, embedded within the thylakoid membranes. When a photon strikes a chlorophyll reaction center, electrons become excited to a higher energy state and are transferred along an electron transport chain.\n\nWater molecules undergo photolysis, splitting into oxygen gas, protons, and replacement electrons. The high-energy proton gradient generated across the thylakoid membrane drives ATP synthase, producing adenosine triphosphate (ATP) and reducing NADP+ into NADPH.\n\nDuring the subsequent Calvin cycle, occurring within the stroma, the catalytic enzyme RuBisCO facilitates carbon fixation. By attaching atmospheric carbon dioxide to ribulose-1,5-bisphosphate, the cycle synthesizes glyceraldehyde-3-phosphate, which plants subsequently assemble into glucose, sucrose, and cellulose."
+    },
+    "sample-distributed-cap": {
+      "id": "sample-distributed-cap",
+      "title": "Distributed Systems & The CAP Theorem",
+      "filename": "distributed-systems-cap.md",
+      "fileType": "md",
+      "createdAt": "2026-11-08T13:47:51.042Z",
+      "charCount": 1524,
+      "wordCount": 224,
+      "lineCount": 18,
+      "content": "# The CAP Theorem in Distributed Architecture\n\nFormulated by Eric Brewer in 2000 and subsequently proved by Seth Gilbert and Nancy Lynch, the CAP theorem establishes that any distributed data store can simultaneously guarantee at most two out of three fundamental properties:\n\n## 1. Consistency (C)\nEvery read operation receives the most recent write or returns an error. All clients see identical data at the exact same moment regardless of which replica node responds.\n\n## 2. Availability (A)\nEvery non-failing node returns a non-error response for every received request, though without guaranteeing that it contains the most recent write.\n\n## 3. Partition Tolerance (P)\nThe distributed cluster continues to function despite an arbitrary number of messages being delayed, dropped, or corrupted by network infrastructure failures between nodes.\n\n## The Partition Reality\n\nIn real-world physical networks, network partitions (P) are unavoidable. Fiber optic cables get severed, switches fail, and packets drop. Therefore, distributed architects do not actually choose between C, A, and P. Instead, when a network partition inevitably occurs, the system must decide between Consistency (CP) and Availability (AP).\n\nIn a CP system, nodes refuse to answer writes until consensus is restored, prioritizing correctness over uptime. In an AP system, nodes continue serving read and write traffic locally, adopting eventual consistency algorithms like CRDTs or vector clocks to reconcile conflicting updates after network healing."
+    },
+    "sample-ai-agents": {
+      "id": "sample-ai-agents",
+      "title": "Autonomous AI Agents and Tool Orchestration",
+      "filename": "ai-agents-evolution.md",
+      "fileType": "md",
+      "createdAt": "2026-11-08T13:47:51.042Z",
+      "charCount": 1549,
+      "wordCount": 204,
+      "lineCount": 17,
+      "content": "# Evolution of Autonomous AI Agents\n\nEarly language models operated as passive text completion systems. Given an input prompt, they predicted the statistically most probable sequence of continuation tokens. In contrast, modern agentic systems represent a paradigm shift: models act as reasoning engines capable of autonomous execution, environmental observation, and dynamic tool orchestration.\n\n## Core Architectural Components of an Agent\n\n1. Planning and Decomposition\nComplex, open-ended goals are recursively decomposed into manageable sub-tasks. Using methodologies like Chain-of-Thought (CoT) and Tree-of-Thoughts (ToT), the agent formulates multi-step strategies before executing immediate actions.\n\n2. Tool Calling and Environment Interaction\nAgents interact with external tools through structured schemas (such as OpenAPI specifications and Model Context Protocol). An agent can query web search engines, execute terminal commands, run sandboxed Python scripts, and invoke database APIs.\n\n3. Cognitive Observation Loops (ReAct)\nThe model follows a continuous Reason -> Act -> Observe feedback loop. If an executed command fails or yields unexpected output, the agent parses the error, updates its internal hypothesis, and generates a corrective follow-up action.\n\n4. Memory Architecture\nShort-term memory corresponds to context window state, maintaining immediate dialog and observation history. Long-term memory utilizes semantic vector retrieval to access historical experiences, user preferences, and enterprise documentation on demand."
+    }
+  },
+  "chunksByDoc": {
+    "sample-rag-overview": {
+      "options": {
+        "strategy": "recursive",
+        "chunkSize": 350,
+        "chunkOverlap": 50
+      },
+      "chunks": [
+        {
+          "id": "sample-rag-overview_chunk_0",
+          "docId": "sample-rag-overview",
+          "index": 0,
+          "text": "# Retrieval-Augmented Generation (RAG) Architecture\n\nLarge Language Models (LLMs) possess vast parametric knowledge acquired during pre-training. However, this knowledge is frozen in time and inherently prone to hallucinations when asked about private enterprise data, niche domain facts, or real-time events.\n\n",
+          "startChar": 0,
+          "endChar": 311,
+          "charCount": 311,
+          "wordCount": 40,
+          "tokenCount": 78,
+          "overlapWithPrev": 0,
+          "overlapWithNext": 0
+        },
+        {
+          "id": "sample-rag-overview_chunk_1",
+          "docId": "sample-rag-overview",
+          "index": 1,
+          "text": "To overcome these constraints, modern AI engineering utilizes Retrieval-Augmented Generation (RAG). RAG bifurcates knowledge processing into two distinct subsystems: an external retrieval engine and a generative reasoning model.\n\n## Why Chunking Is Foundational\n\n",
+          "startChar": 311,
+          "endChar": 574,
+          "charCount": 263,
+          "wordCount": 33,
+          "tokenCount": 66,
+          "overlapWithPrev": 0,
+          "overlapWithNext": 33
+        },
+        {
+          "id": "sample-rag-overview_chunk_2",
+          "docId": "sample-rag-overview",
+          "index": 2,
+          "text": "## Why Chunking Is Foundational\n\nDirectly stuffing entire multi-page manuals or legal contracts into an LLM prompt suffers from severe limitations:\n1. Context Window Costs: Every token passed into an LLM incurs computational latency and financial cost.\n",
+          "startChar": 541,
+          "endChar": 794,
+          "charCount": 253,
+          "wordCount": 37,
+          "tokenCount": 63,
+          "overlapWithPrev": 33,
+          "overlapWithNext": 0
+        },
+        {
+          "id": "sample-rag-overview_chunk_3",
+          "docId": "sample-rag-overview",
+          "index": 3,
+          "text": "2. Lost in the Middle Phenomenon: Studies demonstrate that LLMs pay high attention to the beginning and ending of lengthy prompts, frequently missing crucial facts embedded in the middle.\n",
+          "startChar": 794,
+          "endChar": 982,
+          "charCount": 188,
+          "wordCount": 29,
+          "tokenCount": 47,
+          "overlapWithPrev": 0,
+          "overlapWithNext": 0
+        },
+        {
+          "id": "sample-rag-overview_chunk_4",
+          "docId": "sample-rag-overview",
+          "index": 4,
+          "text": "3. Embedding Dilution: Passing an entire 50-page book into a single embedding model produces an averaged, blurry vector that lacks specificity for precise queries.\n\nTherefore, we systematically slice long documents into cohesive fragments known as chunks.\n\n## The Role of High-Dimensional Embeddings\n\n",
+          "startChar": 982,
+          "endChar": 1283,
+          "charCount": 301,
+          "wordCount": 42,
+          "tokenCount": 75,
+          "overlapWithPrev": 0,
+          "overlapWithNext": 44
+        },
+        {
+          "id": "sample-rag-overview_chunk_5",
+          "docId": "sample-rag-overview",
+          "index": 5,
+          "text": "## The Role of High-Dimensional Embeddings\n\nOnce divided, each chunk is passed through an embedding model. Rather than extracting simple keywords, the embedding model maps the deep semantic meaning of the text onto a continuous geometric hypersphere (e.g. 768 or 1536 dimensions).\n\n",
+          "startChar": 1239,
+          "endChar": 1521,
+          "charCount": 282,
+          "wordCount": 42,
+          "tokenCount": 71,
+          "overlapWithPrev": 44,
+          "overlapWithNext": 0
+        },
+        {
+          "id": "sample-rag-overview_chunk_6",
+          "docId": "sample-rag-overview",
+          "index": 6,
+          "text": "In this vector space, geometric proximity reflects conceptual relationship. Phrases sharing the same meaning reside close together even when using completely distinct vocabularies.\n\n## Cosine Similarity and Vector Search\n\n",
+          "startChar": 1521,
+          "endChar": 1743,
+          "charCount": 222,
+          "wordCount": 29,
+          "tokenCount": 56,
+          "overlapWithPrev": 0,
+          "overlapWithNext": 40
+        },
+        {
+          "id": "sample-rag-overview_chunk_7",
+          "docId": "sample-rag-overview",
+          "index": 7,
+          "text": "## Cosine Similarity and Vector Search\n\nWhen a user submits a question, the query undergoes identical vector transformation. The search engine calculates the cosine angle between the query vector and all chunk vectors in milliseconds:\n\ncosine_similarity = (A · B) / (||A|| * ||B||)\n\n",
+          "startChar": 1703,
+          "endChar": 1986,
+          "charCount": 283,
+          "wordCount": 44,
+          "tokenCount": 71,
+          "overlapWithPrev": 40,
+          "overlapWithNext": 47
+        },
+        {
+          "id": "sample-rag-overview_chunk_8",
+          "docId": "sample-rag-overview",
+          "index": 8,
+          "text": "cosine_similarity = (A · B) / (||A|| * ||B||)\n\nThe highest-scoring chunks are retrieved and injected into the final system prompt as grounded context, enabling the model to generate factually verifiable answers with exact source citations.",
+          "startChar": 1939,
+          "endChar": 2178,
+          "charCount": 239,
+          "wordCount": 36,
+          "tokenCount": 60,
+          "overlapWithPrev": 47,
+          "overlapWithNext": 0
+        }
+      ]
+    },
+    "sample-photosynthesis": {
+      "options": {
+        "strategy": "recursive",
+        "chunkSize": 350,
+        "chunkOverlap": 50
+      },
+      "chunks": [
+        {
+          "id": "sample-photosynthesis_chunk_0",
+          "docId": "sample-photosynthesis",
+          "index": 0,
+          "text": "Photosynthesis is the fundamental biological process through which photosynthetic organisms, primarily plants, algae, and cyanobacteria, convert electromagnetic light energy into chemical potential energy stored within organic molecules.\n\n",
+          "startChar": 0,
+          "endChar": 239,
+          "charCount": 239,
+          "wordCount": 27,
+          "tokenCount": 60,
+          "overlapWithPrev": 0,
+          "overlapWithNext": 0
+        },
+        {
+          "id": "sample-photosynthesis_chunk_1",
+          "docId": "sample-photosynthesis",
+          "index": 1,
+          "text": "The overall chemical equation of oxygenic photosynthesis can be summarized as:\n6 CO2 + 6 H2O + light energy -> C6H12O6 + 6 O2\n\n",
+          "startChar": 239,
+          "endChar": 366,
+          "charCount": 127,
+          "wordCount": 24,
+          "tokenCount": 32,
+          "overlapWithPrev": 0,
+          "overlapWithNext": 0
+        },
+        {
+          "id": "sample-photosynthesis_chunk_2",
+          "docId": "sample-photosynthesis",
+          "index": 2,
+          "text": "This complex pathway occurs inside specialized intracellular organelles termed chloroplasts, predominantly located within the mesophyll cells of plant leaves. The process divides mechanistically into two interdependent phases: light-dependent reactions and light-independent reactions (the Calvin cycle).\n\n",
+          "startChar": 366,
+          "endChar": 672,
+          "charCount": 306,
+          "wordCount": 35,
+          "tokenCount": 77,
+          "overlapWithPrev": 0,
+          "overlapWithNext": 0
+        },
+        {
+          "id": "sample-photosynthesis_chunk_3",
+          "docId": "sample-photosynthesis",
+          "index": 3,
+          "text": "In the light reactions, photon energy is absorbed by specialized pigment molecules, predominantly chlorophyll a and chlorophyll b, embedded within the thylakoid membranes. When a photon strikes a chlorophyll reaction center, electrons become excited to a higher energy state and are transferred along an electron transport chain.\n\n",
+          "startChar": 672,
+          "endChar": 1003,
+          "charCount": 331,
+          "wordCount": 47,
+          "tokenCount": 83,
+          "overlapWithPrev": 0,
+          "overlapWithNext": 0
+        },
+        {
+          "id": "sample-photosynthesis_chunk_4",
+          "docId": "sample-photosynthesis",
+          "index": 4,
+          "text": "Water molecules undergo photolysis, splitting into oxygen gas, protons, and replacement electrons. The high-energy proton gradient generated across the thylakoid membrane drives ATP synthase, producing adenosine triphosphate (ATP) and reducing NADP+ into NADPH.\n\n",
+          "startChar": 1003,
+          "endChar": 1266,
+          "charCount": 263,
+          "wordCount": 33,
+          "tokenCount": 66,
+          "overlapWithPrev": 0,
+          "overlapWithNext": 0
+        },
+        {
+          "id": "sample-photosynthesis_chunk_5",
+          "docId": "sample-photosynthesis",
+          "index": 5,
+          "text": "During the subsequent Calvin cycle, occurring within the stroma, the catalytic enzyme RuBisCO facilitates carbon fixation. By attaching atmospheric carbon dioxide to ribulose-1,5-bisphosphate, the cycle synthesizes glyceraldehyde-3-phosphate, which plants subsequently assemble into glucose, sucrose, and cellulose.",
+          "startChar": 1266,
+          "endChar": 1581,
+          "charCount": 315,
+          "wordCount": 36,
+          "tokenCount": 79,
+          "overlapWithPrev": 0,
+          "overlapWithNext": 0
+        }
+      ]
+    },
+    "sample-distributed-cap": {
+      "options": {
+        "strategy": "recursive",
+        "chunkSize": 350,
+        "chunkOverlap": 50
+      },
+      "chunks": [
+        {
+          "id": "sample-distributed-cap_chunk_0",
+          "docId": "sample-distributed-cap",
+          "index": 0,
+          "text": "# The CAP Theorem in Distributed Architecture\n\nFormulated by Eric Brewer in 2000 and subsequently proved by Seth Gilbert and Nancy Lynch, the CAP theorem establishes that any distributed data store can simultaneously guarantee at most two out of three fundamental properties:\n\n",
+          "startChar": 0,
+          "endChar": 277,
+          "charCount": 277,
+          "wordCount": 42,
+          "tokenCount": 69,
+          "overlapWithPrev": 0,
+          "overlapWithNext": 0
+        },
+        {
+          "id": "sample-distributed-cap_chunk_1",
+          "docId": "sample-distributed-cap",
+          "index": 1,
+          "text": "## 1. Consistency (C)\nEvery read operation receives the most recent write or returns an error. All clients see identical data at the exact same moment regardless of which replica node responds.\n\n",
+          "startChar": 277,
+          "endChar": 472,
+          "charCount": 195,
+          "wordCount": 32,
+          "tokenCount": 49,
+          "overlapWithPrev": 0,
+          "overlapWithNext": 0
+        },
+        {
+          "id": "sample-distributed-cap_chunk_2",
+          "docId": "sample-distributed-cap",
+          "index": 2,
+          "text": "## 2. Availability (A)\nEvery non-failing node returns a non-error response for every received request, though without guaranteeing that it contains the most recent write.\n\n",
+          "startChar": 472,
+          "endChar": 644,
+          "charCount": 172,
+          "wordCount": 25,
+          "tokenCount": 43,
+          "overlapWithPrev": 0,
+          "overlapWithNext": 0
+        },
+        {
+          "id": "sample-distributed-cap_chunk_3",
+          "docId": "sample-distributed-cap",
+          "index": 3,
+          "text": "## 3. Partition Tolerance (P)\nThe distributed cluster continues to function despite an arbitrary number of messages being delayed, dropped, or corrupted by network infrastructure failures between nodes.\n\n## The Partition Reality\n\n",
+          "startChar": 644,
+          "endChar": 874,
+          "charCount": 230,
+          "wordCount": 32,
+          "tokenCount": 58,
+          "overlapWithPrev": 0,
+          "overlapWithNext": 26
+        },
+        {
+          "id": "sample-distributed-cap_chunk_4",
+          "docId": "sample-distributed-cap",
+          "index": 4,
+          "text": "## The Partition Reality\n\nIn real-world physical networks, network partitions (P) are unavoidable. Fiber optic cables get severed, switches fail, and packets drop. Therefore, distributed architects do not actually choose between C, A, and P. Instead, when a network partition inevitably occurs, the system must decide between Consistency (CP) and Availability (AP).\n\n",
+          "startChar": 848,
+          "endChar": 1215,
+          "charCount": 367,
+          "wordCount": 52,
+          "tokenCount": 92,
+          "overlapWithPrev": 26,
+          "overlapWithNext": 0
+        },
+        {
+          "id": "sample-distributed-cap_chunk_5",
+          "docId": "sample-distributed-cap",
+          "index": 5,
+          "text": "In a CP system, nodes refuse to answer writes until consensus is restored, prioritizing correctness over uptime. In an AP system, nodes continue serving read and write traffic locally, adopting eventual consistency algorithms like CRDTs or vector clocks to reconcile conflicting updates after network healing.",
+          "startChar": 1215,
+          "endChar": 1524,
+          "charCount": 309,
+          "wordCount": 45,
+          "tokenCount": 77,
+          "overlapWithPrev": 0,
+          "overlapWithNext": 0
+        }
+      ]
+    },
+    "sample-ai-agents": {
+      "options": {
+        "strategy": "recursive",
+        "chunkSize": 350,
+        "chunkOverlap": 50
+      },
+      "chunks": [
+        {
+          "id": "sample-ai-agents_chunk_0",
+          "docId": "sample-ai-agents",
+          "index": 0,
+          "text": "# Evolution of Autonomous AI Agents\n\nEarly language models operated as passive text completion systems. Given an input prompt, they predicted the statistically most probable sequence of continuation tokens. ",
+          "startChar": 0,
+          "endChar": 207,
+          "charCount": 207,
+          "wordCount": 29,
+          "tokenCount": 52,
+          "overlapWithPrev": 0,
+          "overlapWithNext": 0
+        },
+        {
+          "id": "sample-ai-agents_chunk_1",
+          "docId": "sample-ai-agents",
+          "index": 1,
+          "text": "In contrast, modern agentic systems represent a paradigm shift: models act as reasoning engines capable of autonomous execution, environmental observation, and dynamic tool orchestration.\n\n## Core Architectural Components of an Agent\n\n",
+          "startChar": 207,
+          "endChar": 442,
+          "charCount": 235,
+          "wordCount": 31,
+          "tokenCount": 59,
+          "overlapWithPrev": 0,
+          "overlapWithNext": 47
+        },
+        {
+          "id": "sample-ai-agents_chunk_2",
+          "docId": "sample-ai-agents",
+          "index": 2,
+          "text": "\n## Core Architectural Components of an Agent\n\n1. Planning and Decomposition\nComplex, open-ended goals are recursively decomposed into manageable sub-tasks. Using methodologies like Chain-of-Thought (CoT) and Tree-of-Thoughts (ToT), the agent formulates multi-step strategies before executing immediate actions.\n\n",
+          "startChar": 395,
+          "endChar": 708,
+          "charCount": 313,
+          "wordCount": 37,
+          "tokenCount": 78,
+          "overlapWithPrev": 47,
+          "overlapWithNext": 0
+        },
+        {
+          "id": "sample-ai-agents_chunk_3",
+          "docId": "sample-ai-agents",
+          "index": 3,
+          "text": "2. Tool Calling and Environment Interaction\nAgents interact with external tools through structured schemas (such as OpenAPI specifications and Model Context Protocol). An agent can query web search engines, execute terminal commands, run sandboxed Python scripts, and invoke database APIs.\n\n",
+          "startChar": 708,
+          "endChar": 999,
+          "charCount": 291,
+          "wordCount": 40,
+          "tokenCount": 73,
+          "overlapWithPrev": 0,
+          "overlapWithNext": 0
+        },
+        {
+          "id": "sample-ai-agents_chunk_4",
+          "docId": "sample-ai-agents",
+          "index": 4,
+          "text": "3. Cognitive Observation Loops (ReAct)\nThe model follows a continuous Reason -> Act -> Observe feedback loop. If an executed command fails or yields unexpected output, the agent parses the error, updates its internal hypothesis, and generates a corrective follow-up action.\n\n",
+          "startChar": 999,
+          "endChar": 1274,
+          "charCount": 275,
+          "wordCount": 41,
+          "tokenCount": 69,
+          "overlapWithPrev": 0,
+          "overlapWithNext": 0
+        },
+        {
+          "id": "sample-ai-agents_chunk_5",
+          "docId": "sample-ai-agents",
+          "index": 5,
+          "text": "4. Memory Architecture\nShort-term memory corresponds to context window state, maintaining immediate dialog and observation history. Long-term memory utilizes semantic vector retrieval to access historical experiences, user preferences, and enterprise documentation on demand.",
+          "startChar": 1274,
+          "endChar": 1549,
+          "charCount": 275,
+          "wordCount": 33,
+          "tokenCount": 69,
+          "overlapWithPrev": 0,
+          "overlapWithNext": 0
+        }
+      ]
+    }
+  },
+  "activeDocId": "sample-ai-agents"
+}
