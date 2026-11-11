@@ -1,4 +1,4 @@
-import { ChunkRecord, SimilarityResult } from '../types.js';
+import { ChunkRecord, SimilarityResult } from "../types.js";
 
 export interface CosineExplanation {
   dotProduct: number;
@@ -21,10 +21,12 @@ export interface CosineExplanation {
  */
 export function calculateCosineSimilarityWithTelemetry(
   queryVector: number[],
-  chunkVector: number[]
+  chunkVector: number[],
 ): CosineExplanation {
   if (queryVector.length !== chunkVector.length) {
-    throw new Error(`Dimension mismatch: Query has ${queryVector.length} dims, Chunk has ${chunkVector.length} dims.`);
+    throw new Error(
+      `Dimension mismatch: Query has ${queryVector.length} dims, Chunk has ${chunkVector.length} dims.`,
+    );
   }
 
   const dims = queryVector.length;
@@ -59,15 +61,19 @@ export function calculateCosineSimilarityWithTelemetry(
   // cos(180 deg) = -1 -> 0.0 (opposite direction)
   const normalizedScore = (rawCosine + 1) / 2;
 
-  let geometricInterpretation = '';
+  let geometricInterpretation = "";
   if (angleDegrees < 20) {
-    geometricInterpretation = 'Extremely close direction: Strong semantic alignment across most conceptual dimensions.';
+    geometricInterpretation =
+      "Extremely close direction: Strong semantic alignment across most conceptual dimensions.";
   } else if (angleDegrees < 45) {
-    geometricInterpretation = 'Moderate angle: Shares prominent core themes or related context.';
+    geometricInterpretation =
+      "Moderate angle: Shares prominent core themes or related context.";
   } else if (angleDegrees < 75) {
-    geometricInterpretation = 'Wide angle: Weak connection; only minor tangential vocabulary or syntax overlap.';
+    geometricInterpretation =
+      "Wide angle: Weak connection; only minor tangential vocabulary or syntax overlap.";
   } else {
-    geometricInterpretation = 'Near orthogonal (perpendicular): Concepts reside in fundamentally distinct regions of embedding space.';
+    geometricInterpretation =
+      "Near orthogonal (perpendicular): Concepts reside in fundamentally distinct regions of embedding space.";
   }
 
   return {
@@ -80,28 +86,32 @@ export function calculateCosineSimilarityWithTelemetry(
     geometricInterpretation,
     steps: [
       {
-        title: 'Step 1: Compute Dot Product (A · B)',
-        formula: 'A · B = Σ (A[i] * B[i])',
+        title: "Step 1: Compute Dot Product (A · B)",
+        formula: "A · B = Σ (A[i] * B[i])",
         computation: `${dotProduct.toFixed(5)}`,
-        explanation: 'Measures how much the two vectors point in aligned directions across all dimensions. If both vectors have large positive or negative values in the same dimensions, the product grows large.',
+        explanation:
+          "Measures how much the two vectors point in aligned directions across all dimensions. If both vectors have large positive or negative values in the same dimensions, the product grows large.",
       },
       {
-        title: 'Step 2: Compute Vector Magnitudes (L2 Norms)',
-        formula: '||A|| = √(Σ A[i]²), ||B|| = √(Σ B[i]²)',
+        title: "Step 2: Compute Vector Magnitudes (L2 Norms)",
+        formula: "||A|| = √(Σ A[i]²), ||B|| = √(Σ B[i]²)",
         computation: `||Query|| = ${queryNorm.toFixed(5)}, ||Chunk|| = ${chunkNorm.toFixed(5)}`,
-        explanation: 'Calculates Euclidean length from the origin. For pre-normalized embeddings, both lengths are ~1.0.',
+        explanation:
+          "Calculates Euclidean length from the origin. For pre-normalized embeddings, both lengths are ~1.0.",
       },
       {
-        title: 'Step 3: Calculate Cosine of the Angle (cos θ)',
-        formula: 'cos(θ) = (A · B) / (||A|| * ||B||)',
+        title: "Step 3: Calculate Cosine of the Angle (cos θ)",
+        formula: "cos(θ) = (A · B) / (||A|| * ||B||)",
         computation: `${dotProduct.toFixed(5)} / (${queryNorm.toFixed(5)} * ${chunkNorm.toFixed(5)}) = ${rawCosine.toFixed(5)}`,
-        explanation: 'Normalizes the dot product by vector lengths, yielding the cosine of the angle between them. Varies from -1 (opposite) through 0 (orthogonal) to +1 (identical direction).',
+        explanation:
+          "Normalizes the dot product by vector lengths, yielding the cosine of the angle between them. Varies from -1 (opposite) through 0 (orthogonal) to +1 (identical direction).",
       },
       {
-        title: 'Step 4: Angular Separation',
-        formula: 'θ = arccos(cos(θ)) * (180 / π)',
+        title: "Step 4: Angular Separation",
+        formula: "θ = arccos(cos(θ)) * (180 / π)",
         computation: `arccos(${rawCosine.toFixed(5)}) = ${angleDegrees.toFixed(2)}°`,
-        explanation: 'The actual angular separation between the query and chunk in high-dimensional vector space.',
+        explanation:
+          "The actual angular separation between the query and chunk in high-dimensional vector space.",
       },
     ],
   };
@@ -112,14 +122,17 @@ export function calculateCosineSimilarityWithTelemetry(
  */
 export function rankChunksBySimilarity(
   queryVector: number[],
-  chunks: ChunkRecord[]
+  chunks: ChunkRecord[],
 ): SimilarityResult[] {
   const results: SimilarityResult[] = [];
 
   for (const chunk of chunks) {
     if (!chunk.embedding || chunk.embedding.length === 0) continue;
 
-    const explanation = calculateCosineSimilarityWithTelemetry(queryVector, chunk.embedding);
+    const explanation = calculateCosineSimilarityWithTelemetry(
+      queryVector,
+      chunk.embedding,
+    );
 
     results.push({
       chunkId: chunk.id,

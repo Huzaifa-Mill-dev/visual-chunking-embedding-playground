@@ -1,17 +1,17 @@
-import React from 'react';
-import { DocumentRecord } from '../types/index.js';
-import { ApiSettings } from '../utils/api.js';
-import { 
-  FileText, 
-  Layers, 
-  Sparkles, 
-  BookOpen, 
-  Settings, 
-  Upload, 
-  Download, 
+import React from "react";
+import { DocumentRecord } from "../types/index.js";
+import { ApiSettings } from "../utils/api.js";
+import {
+  FileText,
+  Layers,
+  Sparkles,
+  BookOpen,
+  Settings,
+  Upload,
+  Download,
   RefreshCw,
-  Cpu
-} from 'lucide-react';
+  Cpu,
+} from "lucide-react";
 
 interface NavbarProps {
   documents: DocumentRecord[];
@@ -36,14 +36,26 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const getProviderBadge = () => {
     switch (settings.provider) {
-      case 'gemini':
-        return { label: 'Gemini 768-D', color: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' };
-      case 'openai':
-        return { label: 'OpenAI 1536-D', color: 'bg-purple-500/20 text-purple-300 border-purple-500/30' };
-      case 'ollama':
-        return { label: 'Ollama Local', color: 'bg-amber-500/20 text-amber-300 border-amber-500/30' };
+      case "gemini":
+        return {
+          label: "Gemini 768-D",
+          color: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+        };
+      case "openai":
+        return {
+          label: "OpenAI 1536-D",
+          color: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+        };
+      case "ollama":
+        return {
+          label: "Ollama Local",
+          color: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+        };
       default:
-        return { label: 'Local 64-D (Zero API Key)', color: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30' };
+        return {
+          label: "Local 64-D (Zero API Key)",
+          color: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
+        };
     }
   };
 
@@ -67,7 +79,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               </span>
             </div>
             <p className="text-xs text-slate-400">
-              Interactive pipeline from raw text → chunks → vector embeddings → semantic retrieval
+              Interactive pipeline from raw text → chunks → vector embeddings →
+              semantic retrieval
             </p>
           </div>
         </div>
@@ -77,12 +90,16 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center gap-1.5 bg-slate-950/80 border border-slate-800 rounded-lg px-2.5 py-1.5 shadow-inner">
             <FileText className="w-4 h-4 text-cyan-400" />
             <select
-              value={activeDoc?.id || ''}
+              value={activeDoc?.id || ""}
               onChange={(e) => onSelectDoc(e.target.value)}
               className="bg-transparent text-sm text-slate-200 font-medium focus:outline-none cursor-pointer max-w-[200px] truncate"
             >
               {documents.map((d) => (
-                <option key={d.id} value={d.id} className="bg-slate-900 text-slate-200">
+                <option
+                  key={d.id}
+                  value={d.id}
+                  className="bg-slate-900 text-slate-200"
+                >
                   {d.title}
                 </option>
               ))}

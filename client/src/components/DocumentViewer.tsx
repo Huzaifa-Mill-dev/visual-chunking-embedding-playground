@@ -1,7 +1,15 @@
-import React, { useState } from 'react';
-import { ChunkRecord, DocumentRecord } from '../types/index.js';
-import { getChunkColor } from '../utils/colors.js';
-import { FileText, Eye, Info, Sparkles, Hash, AlignLeft, Layers } from 'lucide-react';
+import React, { useState } from "react";
+import { ChunkRecord, DocumentRecord } from "../types/index.js";
+import { getChunkColor } from "../utils/colors.js";
+import {
+  FileText,
+  Eye,
+  Info,
+  Sparkles,
+  Hash,
+  AlignLeft,
+  Layers,
+} from "lucide-react";
 
 interface DocumentViewerProps {
   document: DocumentRecord | null;
@@ -16,7 +24,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
   selectedChunkId,
   onSelectChunk,
 }) => {
-  const [viewMode, setViewMode] = useState<'boundary' | 'raw'>('boundary');
+  const [viewMode, setViewMode] = useState<"boundary" | "raw">("boundary");
 
   if (!document) {
     return (
@@ -59,7 +67,9 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
               {/* Chunk Header Bar */}
               <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-700/40">
                 <div className="flex items-center gap-2">
-                  <span className={`px-2 py-0.5 rounded text-[11px] font-bold border ${color.badge}`}>
+                  <span
+                    className={`px-2 py-0.5 rounded text-[11px] font-bold border ${color.badge}`}
+                  >
                     Chunk #{chunk.index}
                   </span>
                   <span className="text-[11px] text-slate-400">
@@ -124,7 +134,9 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-sm font-semibold text-slate-200">{document.title}</h2>
+              <h2 className="text-sm font-semibold text-slate-200">
+                {document.title}
+              </h2>
               <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
                 .{document.fileType}
               </span>
@@ -142,22 +154,22 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
         {/* View Mode Toggle */}
         <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-0.5">
           <button
-            onClick={() => setViewMode('boundary')}
+            onClick={() => setViewMode("boundary")}
             className={`flex items-center gap-1 text-xs px-2.5 py-1 rounded-md transition ${
-              viewMode === 'boundary'
-                ? 'bg-cyan-600/30 text-cyan-300 font-medium border border-cyan-500/30 shadow-sm'
-                : 'text-slate-400 hover:text-slate-200'
+              viewMode === "boundary"
+                ? "bg-cyan-600/30 text-cyan-300 font-medium border border-cyan-500/30 shadow-sm"
+                : "text-slate-400 hover:text-slate-200"
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
             <span>Chunk Boundary Map</span>
           </button>
           <button
-            onClick={() => setViewMode('raw')}
+            onClick={() => setViewMode("raw")}
             className={`flex items-center gap-1 text-xs px-2.5 py-1 rounded-md transition ${
-              viewMode === 'raw'
-                ? 'bg-cyan-600/30 text-cyan-300 font-medium border border-cyan-500/30 shadow-sm'
-                : 'text-slate-400 hover:text-slate-200'
+              viewMode === "raw"
+                ? "bg-cyan-600/30 text-cyan-300 font-medium border border-cyan-500/30 shadow-sm"
+                : "text-slate-400 hover:text-slate-200"
             }`}
           >
             <AlignLeft className="w-3.5 h-3.5" />
@@ -168,7 +180,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
 
       {/* Content Container */}
       <div className="p-4 overflow-y-auto max-h-[580px] custom-scrollbar flex-1 bg-slate-950/20">
-        {viewMode === 'boundary' ? (
+        {viewMode === "boundary" ? (
           renderBoundaryMap()
         ) : (
           <div className="font-mono text-xs text-slate-300 whitespace-pre-wrap leading-relaxed p-2">
@@ -178,7 +190,7 @@ export const DocumentViewer: React.FC<DocumentViewerProps> = ({
       </div>
 
       {/* Educational Legend Footer */}
-      {viewMode === 'boundary' && chunks.length > 0 && (
+      {viewMode === "boundary" && chunks.length > 0 && (
         <div className="bg-slate-950/80 border-t border-slate-800 px-4 py-2 text-[11px] text-slate-400 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1.5">

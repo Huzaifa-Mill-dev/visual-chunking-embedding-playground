@@ -1,15 +1,23 @@
-import React, { useState, useRef } from 'react';
-import { X, Upload, FileText, Check, AlertCircle } from 'lucide-react';
+import React, { useState, useRef } from "react";
+import { X, Upload, FileText, Check, AlertCircle } from "lucide-react";
 
 interface UploadModalProps {
-  onUpload: (data: { title: string; filename: string; content: string; fileType?: 'txt' | 'md' }) => Promise<void>;
+  onUpload: (data: {
+    title: string;
+    filename: string;
+    content: string;
+    fileType?: "txt" | "md";
+  }) => Promise<void>;
   onClose: () => void;
 }
 
-export const UploadModal: React.FC<UploadModalProps> = ({ onUpload, onClose }) => {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [filename, setFilename] = useState('');
+export const UploadModal: React.FC<UploadModalProps> = ({
+  onUpload,
+  onClose,
+}) => {
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [filename, setFilename] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -18,15 +26,15 @@ export const UploadModal: React.FC<UploadModalProps> = ({ onUpload, onClose }) =
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.name.endsWith('.txt') && !file.name.endsWith('.md')) {
-      setError('Please upload a .txt or .md plain text or markdown file.');
+    if (!file.name.endsWith(".txt") && !file.name.endsWith(".md")) {
+      setError("Please upload a .txt or .md plain text or markdown file.");
       return;
     }
 
     setError(null);
     setFilename(file.name);
     if (!title) {
-      setTitle(file.name.replace(/\.[^/.]+$/, ''));
+      setTitle(file.name.replace(/\.[^/.]+$/, ""));
     }
 
     const reader = new FileReader();
@@ -40,7 +48,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({ onUpload, onClose }) =
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim()) {
-      setError('Document content cannot be empty.');
+      setError("Document content cannot be empty.");
       return;
     }
 
@@ -48,16 +56,16 @@ export const UploadModal: React.FC<UploadModalProps> = ({ onUpload, onClose }) =
     setError(null);
 
     try {
-      const fileType = filename.endsWith('.md') ? 'md' : 'txt';
+      const fileType = filename.endsWith(".md") ? "md" : "txt";
       await onUpload({
-        title: title.trim() || filename || 'Untitled Document',
-        filename: filename || 'document.txt',
+        title: title.trim() || filename || "Untitled Document",
+        filename: filename || "document.txt",
         content,
         fileType,
       });
       onClose();
     } catch (err: any) {
-      setError(err.message || 'Failed to upload document');
+      setError(err.message || "Failed to upload document");
     } finally {
       setIsUploading(false);
     }
@@ -73,8 +81,12 @@ export const UploadModal: React.FC<UploadModalProps> = ({ onUpload, onClose }) =
               <Upload className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-200">Ingest New Document</h3>
-              <p className="text-xs text-slate-400">Upload a TXT or Markdown document to experiment with chunking</p>
+              <h3 className="text-sm font-bold text-slate-200">
+                Ingest New Document
+              </h3>
+              <p className="text-xs text-slate-400">
+                Upload a TXT or Markdown document to experiment with chunking
+              </p>
             </div>
           </div>
 
@@ -109,14 +121,20 @@ export const UploadModal: React.FC<UploadModalProps> = ({ onUpload, onClose }) =
             />
             <FileText className="w-8 h-8 mx-auto mb-2 text-slate-500 group-hover:text-cyan-400 transition" />
             <p className="font-semibold text-slate-300">
-              {filename ? `Selected: ${filename}` : 'Click to select a file from your computer'}
+              {filename
+                ? `Selected: ${filename}`
+                : "Click to select a file from your computer"}
             </p>
-            <p className="text-[11px] text-slate-500 mt-1">Supports plain text (.txt) and Markdown (.md)</p>
+            <p className="text-[11px] text-slate-500 mt-1">
+              Supports plain text (.txt) and Markdown (.md)
+            </p>
           </div>
 
           {/* Title Input */}
           <div className="space-y-1">
-            <label className="font-semibold text-slate-300 block">Document Title:</label>
+            <label className="font-semibold text-slate-300 block">
+              Document Title:
+            </label>
             <input
               type="text"
               value={title}
@@ -128,7 +146,9 @@ export const UploadModal: React.FC<UploadModalProps> = ({ onUpload, onClose }) =
 
           {/* Content TextArea */}
           <div className="space-y-1">
-            <label className="font-semibold text-slate-300 block">Document Content (or paste directly):</label>
+            <label className="font-semibold text-slate-300 block">
+              Document Content (or paste directly):
+            </label>
             <textarea
               rows={8}
               value={content}
@@ -138,7 +158,12 @@ export const UploadModal: React.FC<UploadModalProps> = ({ onUpload, onClose }) =
             />
             <div className="flex justify-between text-[11px] text-slate-500 font-mono">
               <span>{content.length.toLocaleString()} characters</span>
-              <span>{content.trim() ? content.trim().split(/\s+/).length.toLocaleString() : 0} words</span>
+              <span>
+                {content.trim()
+                  ? content.trim().split(/\s+/).length.toLocaleString()
+                  : 0}{" "}
+                words
+              </span>
             </div>
           </div>
 
@@ -156,7 +181,7 @@ export const UploadModal: React.FC<UploadModalProps> = ({ onUpload, onClose }) =
               disabled={isUploading || !content.trim()}
               className="px-4 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold shadow-md transition disabled:opacity-50"
             >
-              {isUploading ? 'Ingesting...' : 'Ingest & Chunk'}
+              {isUploading ? "Ingesting..." : "Ingest & Chunk"}
             </button>
           </div>
         </form>

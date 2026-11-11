@@ -1,13 +1,13 @@
-import { ChunkRecord, ChunkOptions } from '../types.js';
+import { ChunkRecord, ChunkOptions } from "../types.js";
 
 /**
  * STRATEGY: Sentence-Based Chunking
- * 
+ *
  * Educational Concept:
  * Sentences are the fundamental grammatical unit of a complete proposition or claim.
  * Splitting in the middle of a sentence harms embedding quality because the model
  * receives an incomplete syntactic structure (e.g., subject without verb).
- * 
+ *
  * How it works:
  * - Identifies sentence terminals (.!?) followed by spaces or newlines.
  * - Accumulates complete sentences until reaching `chunkSize`.
@@ -17,10 +17,13 @@ import { ChunkRecord, ChunkOptions } from '../types.js';
 export function chunkSentence(
   docId: string,
   content: string,
-  options: ChunkOptions
+  options: ChunkOptions,
 ): ChunkRecord[] {
   const chunkSize = Math.max(80, options.chunkSize || 300);
-  const chunkOverlap = Math.max(0, Math.min(options.chunkOverlap || 50, chunkSize - 1));
+  const chunkOverlap = Math.max(
+    0,
+    Math.min(options.chunkOverlap || 50, chunkSize - 1),
+  );
 
   // Regex to split into sentences while preserving character positions
   const sentenceRegex = /[^.!?\r\n]+(?:[.!?]+["'\s]|(?=\r?\n|$))/g;
@@ -39,19 +42,21 @@ export function chunkSentence(
   }
 
   if (sentences.length === 0) {
-    return [{
-      id: `${docId}_chunk_0`,
-      docId,
-      index: 0,
-      text: content,
-      startChar: 0,
-      endChar: content.length,
-      charCount: content.length,
-      wordCount: content.trim().split(/\s+/).length,
-      tokenCount: Math.max(1, Math.round(content.length / 4)),
-      overlapWithPrev: 0,
-      overlapWithNext: 0,
-    }];
+    return [
+      {
+        id: `${docId}_chunk_0`,
+        docId,
+        index: 0,
+        text: content,
+        startChar: 0,
+        endChar: content.length,
+        charCount: content.length,
+        wordCount: content.trim().split(/\s+/).length,
+        tokenCount: Math.max(1, Math.round(content.length / 4)),
+        overlapWithPrev: 0,
+        overlapWithNext: 0,
+      },
+    ];
   }
 
   const chunks: ChunkRecord[] = [];
@@ -62,7 +67,10 @@ export function chunkSentence(
   for (let i = 0; i < sentences.length; i++) {
     const sent = sentences[i];
 
-    if (currentLength + sent.text.length > chunkSize && currentGroup.length > 0) {
+    if (
+      currentLength + sent.text.length > chunkSize &&
+      currentGroup.length > 0
+    ) {
       // Create chunk from current group
       const startChar = currentGroup[0].start;
       const endChar = currentGroup[currentGroup.length - 1].end;
@@ -76,7 +84,10 @@ export function chunkSentence(
         startChar,
         endChar,
         charCount: chunkText.length,
-        wordCount: chunkText.trim().length > 0 ? chunkText.trim().split(/\s+/).length : 0,
+        wordCount:
+          chunkText.trim().length > 0
+            ? chunkText.trim().split(/\s+/).length
+            : 0,
         tokenCount: Math.max(1, Math.round(chunkText.length / 4)),
         overlapWithPrev: 0,
         overlapWithNext: 0,
@@ -117,7 +128,8 @@ export function chunkSentence(
       startChar,
       endChar,
       charCount: chunkText.length,
-      wordCount: chunkText.trim().length > 0 ? chunkText.trim().split(/\s+/).length : 0,
+      wordCount:
+        chunkText.trim().length > 0 ? chunkText.trim().split(/\s+/).length : 0,
       tokenCount: Math.max(1, Math.round(chunkText.length / 4)),
       overlapWithPrev: 0,
       overlapWithNext: 0,

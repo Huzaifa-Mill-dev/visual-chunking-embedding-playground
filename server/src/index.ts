@@ -1,24 +1,30 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 
-import { JsonDatabase } from './storage/db.js';
-import { SAMPLE_DOCUMENTS } from './sampleDocs/index.js';
-import { STRATEGY_CATALOG, chunkDocument } from './chunkers/index.js';
-import { ChunkOptions, DocumentRecord, ChunkRecord } from './types.js';
+import { JsonDatabase } from "./storage/db.js";
+import { SAMPLE_DOCUMENTS } from "./sampleDocs/index.js";
+import { STRATEGY_CATALOG, chunkDocument } from "./chunkers/index.js";
+import { ChunkOptions, DocumentRecord, ChunkRecord } from "./types.js";
 
-import { EducationalEmbedder } from './embeddings/educationalEmbedder.js';
-import { GeminiEmbedder } from './embeddings/geminiEmbedder.js';
-import { OpenAIEmbedder } from './embeddings/openaiEmbedder.js';
-import { OllamaEmbedder } from './embeddings/ollamaEmbedder.js';
-import { EmbeddingCache } from './embeddings/cache.js';
-import { IEmbeddingProvider, computeVectorStats } from './embeddings/provider.js';
+import { EducationalEmbedder } from "./embeddings/educationalEmbedder.js";
+import { GeminiEmbedder } from "./embeddings/geminiEmbedder.js";
+import { OpenAIEmbedder } from "./embeddings/openaiEmbedder.js";
+import { OllamaEmbedder } from "./embeddings/ollamaEmbedder.js";
+import { EmbeddingCache } from "./embeddings/cache.js";
+import {
+  IEmbeddingProvider,
+  computeVectorStats,
+} from "./embeddings/provider.js";
 
-import { calculateCosineSimilarityWithTelemetry, rankChunksBySimilarity } from './similarity/cosine.js';
-import { computePCA2D } from './similarity/pca.js';
-import fs from 'fs';
+import {
+  calculateCosineSimilarityWithTelemetry,
+  rankChunksBySimilarity,
+} from "./similarity/cosine.js";
+import { computePCA2D } from "./similarity/pca.js";
+import fs from "fs";
 
 dotenv.config();
 
@@ -26,11 +32,11 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.use(cors());
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: "10mb" }));
 
 // Initialize persistence & services
-const db = new JsonDatabase('./data');
-const cache = new EmbeddingCache('./data');
+const db = new JsonDatabase("./data");
+const cache = new EmbeddingCache("./data");
 
 // Provider Registry
 const providers: Record<string, IEmbeddingProvider> = {
@@ -46,7 +52,7 @@ if (db.getAllDocuments().length === 0) {
     db.saveDocument(doc);
     // Generate initial default chunks for sample doc
     const defaultOptions: ChunkOptions = {
-      strategy: 'recursive',
+      strategy: "recursive",
       chunkSize: 350,
       chunkOverlap: 50,
     };
@@ -59,38 +65,43 @@ if (db.getAllDocuments().length === 0) {
 // ROUTES: Documents
 // -------------------------------------------------------------
 
-app.get('/api/documents', (req, res) => {
+app.get("/api/documents", (req, res) => {
   const docs = db.getAllDocuments();
   const activeId = db.getActiveDocId() || (docs.length > 0 ? docs[0].id : null);
   res.json({ documents: docs, activeId });
 });
 
-app.get('/api/documents/:id', (req, res) => {
+app.get("/api/documents/:id", (req, res) => {
   const doc = db.getDocument(req.params.id);
   if (!doc) {
-    return res.status(404).json({ error: 'Document not found' });
+    return res.status(404).json({ error: "Document not found" });
   }
   const chunkData = db.getDocChunks(doc.id);
-  res.json({ document: doc, chunks: chunkData?.chunks || [], options: chunkData?.options || null });
+  res.json({
+    document: doc,
+    chunks: chunkData?.chunks || [],
+    options: chunkData?.options || null,
+  });
 });
 
-app.post('/api/documents', (req, res) => {
+app.post("/api/documents", (req, res) => {
   const { title, filename, content, fileType } = req.body;
-  if (!content || typeof content !== 'string') {
-    return res.status(400).json({ error: 'Content is required' });
+  if (!content || typeof content !== "string") {
+    return res.status(400).json({ error: "Content is required" });
   }
 
-  const id = 'doc_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
+  const id =
+    "doc_" + Date.now() + "_" + Math.random().toString(36).substring(2, 7);
   const trimmed = content.trim();
   const doc: DocumentRecord = {
     id,
-    title: title || filename || 'Untitled Document',
-    filename: filename || 'document.txt',
-    fileType: fileType || (filename?.endsWith('.md') ? 'md' : 'txt'),
+    title: title || filename || "Untitled Document",
+    filename: filename || "document.txt",
+    fileType: fileType || (filename?.endsWith(".md") ? "md" : "txt"),
     content,
     charCount: content.length,
     wordCount: trimmed.length > 0 ? trimmed.split(/\s+/).length : 0,
-    lineCount: content.split('\n').length,
+    lineCount: content.split("\n").length,
     createdAt: new Date().toISOString(),
   };
 
@@ -98,7 +109,7 @@ app.post('/api/documents', (req, res) => {
 
   // Automatically chunk with recursive default
   const defaultOptions: ChunkOptions = {
-    strategy: 'recursive',
+    strategy: "recursive",
     chunkSize: 350,
     chunkOverlap: 50,
   };
@@ -108,16 +119,16 @@ app.post('/api/documents', (req, res) => {
   res.json({ document: doc, chunks, options: defaultOptions });
 });
 
-app.delete('/api/documents/:id', (req, res) => {
+app.delete("/api/documents/:id", (req, res) => {
   db.deleteDocument(req.params.id);
   res.json({ success: true });
 });
 
-app.post('/api/documents/reset-samples', (req, res) => {
+app.post("/api/documents/reset-samples", (req, res) => {
   for (const doc of SAMPLE_DOCUMENTS) {
     db.saveDocument(doc);
     const defaultOptions: ChunkOptions = {
-      strategy: 'recursive',
+      strategy: "recursive",
       chunkSize: 350,
       chunkOverlap: 50,
     };
@@ -131,19 +142,22 @@ app.post('/api/documents/reset-samples', (req, res) => {
 // ROUTES: Chunking
 // -------------------------------------------------------------
 
-app.get('/api/strategies', (req, res) => {
+app.get("/api/strategies", (req, res) => {
   res.json({ strategies: STRATEGY_CATALOG });
 });
 
-app.post('/api/chunk', (req, res) => {
-  const { docId, options } = req.body as { docId: string; options: ChunkOptions };
+app.post("/api/chunk", (req, res) => {
+  const { docId, options } = req.body as {
+    docId: string;
+    options: ChunkOptions;
+  };
   if (!docId) {
-    return res.status(400).json({ error: 'docId is required' });
+    return res.status(400).json({ error: "docId is required" });
   }
 
   const doc = db.getDocument(docId);
   if (!doc) {
-    return res.status(404).json({ error: 'Document not found' });
+    return res.status(404).json({ error: "Document not found" });
   }
 
   const chunks = chunkDocument(doc.id, doc.content, options);
@@ -151,7 +165,7 @@ app.post('/api/chunk', (req, res) => {
   // Check if any chunks match existing cache for embeddings
   const provider = providers.educational;
   for (const c of chunks) {
-    const cached = cache.get('educational', provider.defaultModel, c.text);
+    const cached = cache.get("educational", provider.defaultModel, c.text);
     if (cached) {
       c.embedding = cached.embedding;
       c.model = cached.model;
@@ -167,35 +181,49 @@ app.post('/api/chunk', (req, res) => {
 // ROUTES: Embeddings
 // -------------------------------------------------------------
 
-app.post('/api/embed', async (req, res) => {
+app.post("/api/embed", async (req, res) => {
   try {
-    const { docId, chunkIds, provider: providerName = 'educational', model, apiKey, endpoint } = req.body;
-    
+    const {
+      docId,
+      chunkIds,
+      provider: providerName = "educational",
+      model,
+      apiKey,
+      endpoint,
+    } = req.body;
+
     if (!docId) {
-      return res.status(400).json({ error: 'docId is required' });
+      return res.status(400).json({ error: "docId is required" });
     }
 
     const docChunks = db.getDocChunks(docId);
     if (!docChunks) {
-      return res.status(404).json({ error: 'No chunks found for document' });
+      return res.status(404).json({ error: "No chunks found for document" });
     }
 
     const provider = providers[providerName];
     if (!provider) {
-      return res.status(400).json({ error: `Unknown provider: ${providerName}` });
+      return res
+        .status(400)
+        .json({ error: `Unknown provider: ${providerName}` });
     }
 
-    const effectiveApiKey = apiKey || req.headers['x-api-key']?.toString();
-    const targetChunks = chunkIds && Array.isArray(chunkIds)
-      ? docChunks.chunks.filter(c => chunkIds.includes(c.id))
-      : docChunks.chunks;
+    const effectiveApiKey = apiKey || req.headers["x-api-key"]?.toString();
+    const targetChunks =
+      chunkIds && Array.isArray(chunkIds)
+        ? docChunks.chunks.filter((c) => chunkIds.includes(c.id))
+        : docChunks.chunks;
 
     let newlyGeneratedCount = 0;
     let cachedCount = 0;
 
     for (const chunk of targetChunks) {
       // Check cache first
-      const cached = cache.get(providerName, model || provider.defaultModel, chunk.text);
+      const cached = cache.get(
+        providerName,
+        model || provider.defaultModel,
+        chunk.text,
+      );
       if (cached) {
         chunk.embedding = cached.embedding;
         chunk.model = cached.model;
@@ -219,11 +247,21 @@ app.post('/api/embed', async (req, res) => {
     }
 
     // Persist updated chunks
-    db.saveDocChunks(docId, docChunks.options || { strategy: 'recursive', chunkSize: 350, chunkOverlap: 50 }, docChunks.chunks);
+    db.saveDocChunks(
+      docId,
+      docChunks.options || {
+        strategy: "recursive",
+        chunkSize: 350,
+        chunkOverlap: 50,
+      },
+      docChunks.chunks,
+    );
 
     // Compute stats on first embedded chunk as telemetry sample
-    const sampleChunk = targetChunks.find(c => c.embedding);
-    const vectorStats = sampleChunk?.embedding ? computeVectorStats(sampleChunk.embedding) : null;
+    const sampleChunk = targetChunks.find((c) => c.embedding);
+    const vectorStats = sampleChunk?.embedding
+      ? computeVectorStats(sampleChunk.embedding)
+      : null;
 
     res.json({
       success: true,
@@ -234,8 +272,10 @@ app.post('/api/embed', async (req, res) => {
       sampleStats: vectorStats,
     });
   } catch (err: any) {
-    console.error('Embedding generation failed:', err);
-    res.status(500).json({ error: err.message || 'Failed to generate embeddings' });
+    console.error("Embedding generation failed:", err);
+    res
+      .status(500)
+      .json({ error: err.message || "Failed to generate embeddings" });
   }
 });
 
@@ -243,21 +283,27 @@ app.post('/api/embed', async (req, res) => {
 // ROUTES: Similarity & Semantic Search
 // -------------------------------------------------------------
 
-app.post('/api/search', async (req, res) => {
+app.post("/api/search", async (req, res) => {
   try {
-    const { docId, query, provider: providerName = 'educational', model, apiKey } = req.body;
+    const {
+      docId,
+      query,
+      provider: providerName = "educational",
+      model,
+      apiKey,
+    } = req.body;
 
-    if (!docId || !query || typeof query !== 'string') {
-      return res.status(400).json({ error: 'docId and query are required' });
+    if (!docId || !query || typeof query !== "string") {
+      return res.status(400).json({ error: "docId and query are required" });
     }
 
     const docChunks = db.getDocChunks(docId);
     if (!docChunks || docChunks.chunks.length === 0) {
-      return res.status(400).json({ error: 'No chunks available to search' });
+      return res.status(400).json({ error: "No chunks available to search" });
     }
 
     const provider = providers[providerName] || providers.educational;
-    const effectiveApiKey = apiKey || req.headers['x-api-key']?.toString();
+    const effectiveApiKey = apiKey || req.headers["x-api-key"]?.toString();
 
     // 1. Embed Query
     const queryResult = await provider.embedText(query, {
@@ -266,14 +312,22 @@ app.post('/api/search', async (req, res) => {
     });
 
     // 2. Rank chunks by Cosine Similarity
-    const rankedResults = rankChunksBySimilarity(queryResult.embedding, docChunks.chunks);
+    const rankedResults = rankChunksBySimilarity(
+      queryResult.embedding,
+      docChunks.chunks,
+    );
 
     // 3. Step-by-step breakdown for top match
     let topMatchExplanation = null;
     if (rankedResults.length > 0) {
-      const topChunk = docChunks.chunks.find(c => c.id === rankedResults[0].chunkId);
+      const topChunk = docChunks.chunks.find(
+        (c) => c.id === rankedResults[0].chunkId,
+      );
       if (topChunk?.embedding) {
-        topMatchExplanation = calculateCosineSimilarityWithTelemetry(queryResult.embedding, topChunk.embedding);
+        topMatchExplanation = calculateCosineSimilarityWithTelemetry(
+          queryResult.embedding,
+          topChunk.embedding,
+        );
       }
     }
 
@@ -287,8 +341,8 @@ app.post('/api/search', async (req, res) => {
       totalChunksQueried: docChunks.chunks.length,
     });
   } catch (err: any) {
-    console.error('Search failed:', err);
-    res.status(500).json({ error: err.message || 'Search failed' });
+    console.error("Search failed:", err);
+    res.status(500).json({ error: err.message || "Search failed" });
   }
 });
 
@@ -296,23 +350,23 @@ app.post('/api/search', async (req, res) => {
 // ROUTES: PCA 2D Dimensionality Reduction
 // -------------------------------------------------------------
 
-app.post('/api/pca', (req, res) => {
+app.post("/api/pca", (req, res) => {
   try {
     const { docId } = req.body;
     if (!docId) {
-      return res.status(400).json({ error: 'docId is required' });
+      return res.status(400).json({ error: "docId is required" });
     }
 
     const docChunks = db.getDocChunks(docId);
     if (!docChunks || docChunks.chunks.length === 0) {
-      return res.status(400).json({ error: 'No chunks found' });
+      return res.status(400).json({ error: "No chunks found" });
     }
 
     const pcaResult = computePCA2D(docChunks.chunks);
     res.json(pcaResult);
   } catch (err: any) {
-    console.error('PCA failed:', err);
-    res.status(500).json({ error: err.message || 'PCA computation failed' });
+    console.error("PCA failed:", err);
+    res.status(500).json({ error: err.message || "PCA computation failed" });
   }
 });
 
@@ -320,31 +374,37 @@ app.post('/api/pca', (req, res) => {
 // ROUTES: Compare Two Chunks
 // -------------------------------------------------------------
 
-app.post('/api/compare-chunks', (req, res) => {
+app.post("/api/compare-chunks", (req, res) => {
   try {
     const { docId, chunkIdA, chunkIdB } = req.body;
     const docChunks = db.getDocChunks(docId);
-    if (!docChunks) return res.status(404).json({ error: 'Document chunks not found' });
+    if (!docChunks)
+      return res.status(404).json({ error: "Document chunks not found" });
 
-    const chunkA = docChunks.chunks.find(c => c.id === chunkIdA);
-    const chunkB = docChunks.chunks.find(c => c.id === chunkIdB);
+    const chunkA = docChunks.chunks.find((c) => c.id === chunkIdA);
+    const chunkB = docChunks.chunks.find((c) => c.id === chunkIdB);
 
     if (!chunkA || !chunkB) {
-      return res.status(404).json({ error: 'One or both chunks not found' });
+      return res.status(404).json({ error: "One or both chunks not found" });
     }
 
     if (!chunkA.embedding || !chunkB.embedding) {
-      return res.status(400).json({ error: 'Both chunks must have embeddings generated first.' });
+      return res
+        .status(400)
+        .json({ error: "Both chunks must have embeddings generated first." });
     }
 
-    const telemetry = calculateCosineSimilarityWithTelemetry(chunkA.embedding, chunkB.embedding);
+    const telemetry = calculateCosineSimilarityWithTelemetry(
+      chunkA.embedding,
+      chunkB.embedding,
+    );
     res.json({
       chunkA: { id: chunkA.id, index: chunkA.index, text: chunkA.text },
       chunkB: { id: chunkB.id, index: chunkB.index, text: chunkB.text },
       telemetry,
     });
   } catch (err: any) {
-    res.status(500).json({ error: err.message || 'Comparison failed' });
+    res.status(500).json({ error: err.message || "Comparison failed" });
   }
 });
 
@@ -352,9 +412,9 @@ app.post('/api/compare-chunks', (req, res) => {
 // ROUTES: Export JSON
 // -------------------------------------------------------------
 
-app.get('/api/export/:docId', (req, res) => {
+app.get("/api/export/:docId", (req, res) => {
   const doc = db.getDocument(req.params.docId);
-  if (!doc) return res.status(404).json({ error: 'Document not found' });
+  if (!doc) return res.status(404).json({ error: "Document not found" });
 
   const chunkData = db.getDocChunks(doc.id);
   const payload = {
@@ -364,21 +424,26 @@ app.get('/api/export/:docId', (req, res) => {
     chunks: chunkData?.chunks || [],
   };
 
-  res.setHeader('Content-Disposition', `attachment; filename="${doc.filename}-rag-export.json"`);
+  res.setHeader(
+    "Content-Disposition",
+    `attachment; filename="${doc.filename}-rag-export.json"`,
+  );
   res.json(payload);
 });
 
 // Serve static frontend build if available
-const distPath = path.resolve(process.cwd(), 'dist');
+const distPath = path.resolve(process.cwd(), "dist");
 if (fs.existsSync(distPath)) {
   app.use(express.static(distPath));
-  app.get('*', (req, res, next) => {
-    if (req.path.startsWith('/api')) return next();
-    res.sendFile(path.join(distPath, 'index.html'));
+  app.get("*", (req, res, next) => {
+    if (req.path.startsWith("/api")) return next();
+    res.sendFile(path.join(distPath, "index.html"));
   });
 }
 
 // Start Express Server
 app.listen(PORT, () => {
-  console.log(`Educational Playground Server listening on http://localhost:${PORT}`);
+  console.log(
+    `Educational Playground Server listening on http://localhost:${PORT}`,
+  );
 });

@@ -1,12 +1,12 @@
-import { ChunkRecord, ChunkOptions } from '../types.js';
+import { ChunkRecord, ChunkOptions } from "../types.js";
 
 /**
  * STRATEGY: Paragraph-Based Chunking
- * 
+ *
  * Educational Concept:
  * In well-structured writing (essays, documentation, news, academic papers),
  * each paragraph represents a single coherent thought, argument, or topic.
- * 
+ *
  * How it works:
  * - Detects paragraph boundaries using consecutive newlines (\n\n+).
  * - Treats each paragraph as a natural semantic unit.
@@ -14,7 +14,7 @@ import { ChunkRecord, ChunkOptions } from '../types.js';
  *   paragraph to avoid tiny, context-starved fragments.
  * - If a paragraph is longer than `chunkSize`, it is either kept intact (respecting
  *   author boundaries) or split if strictly required.
- * 
+ *
  * Trade-offs:
  * - Highly natural semantic cohesion.
  * - Chunks have variable, uneven lengths (some 100 chars, some 800 chars).
@@ -23,7 +23,7 @@ import { ChunkRecord, ChunkOptions } from '../types.js';
 export function chunkParagraph(
   docId: string,
   content: string,
-  options: ChunkOptions
+  options: ChunkOptions,
 ): ChunkRecord[] {
   const targetSize = Math.max(100, options.chunkSize || 400);
   const minLength = options.minChunkLength || 60;
@@ -46,19 +46,21 @@ export function chunkParagraph(
 
   if (rawParagraphs.length === 0) {
     // Fallback if no clean paragraphs found
-    return [{
-      id: `${docId}_chunk_0`,
-      docId,
-      index: 0,
-      text: content,
-      startChar: 0,
-      endChar: content.length,
-      charCount: content.length,
-      wordCount: content.trim().split(/\s+/).length,
-      tokenCount: Math.max(1, Math.round(content.length / 4)),
-      overlapWithPrev: 0,
-      overlapWithNext: 0,
-    }];
+    return [
+      {
+        id: `${docId}_chunk_0`,
+        docId,
+        index: 0,
+        text: content,
+        startChar: 0,
+        endChar: content.length,
+        charCount: content.length,
+        wordCount: content.trim().split(/\s+/).length,
+        tokenCount: Math.max(1, Math.round(content.length / 4)),
+        overlapWithPrev: 0,
+        overlapWithNext: 0,
+      },
+    ];
   }
 
   // Group small paragraphs together until reaching targetSize
@@ -81,7 +83,8 @@ export function chunkParagraph(
       startChar,
       endChar,
       charCount: chunkText.length,
-      wordCount: chunkText.trim().length > 0 ? chunkText.trim().split(/\s+/).length : 0,
+      wordCount:
+        chunkText.trim().length > 0 ? chunkText.trim().split(/\s+/).length : 0,
       tokenCount: Math.max(1, Math.round(chunkText.length / 4)),
       overlapWithPrev: 0,
       overlapWithNext: 0,
@@ -89,7 +92,11 @@ export function chunkParagraph(
   }
 
   for (const p of rawParagraphs) {
-    if (currentGroup.length > 0 && currentLength + p.text.length > targetSize && currentLength >= minLength) {
+    if (
+      currentGroup.length > 0 &&
+      currentLength + p.text.length > targetSize &&
+      currentLength >= minLength
+    ) {
       pushChunk(currentGroup);
       currentGroup = [p];
       currentLength = p.text.length;

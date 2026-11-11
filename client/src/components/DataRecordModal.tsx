@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
-import { ChunkRecord } from '../types/index.js';
-import { X, Copy, Check, Code, Info } from 'lucide-react';
+import React, { useState } from "react";
+import { ChunkRecord } from "../types/index.js";
+import { X, Copy, Check, Code, Info } from "lucide-react";
 
 interface DataRecordModalProps {
   chunk: ChunkRecord | null;
   onClose: () => void;
 }
 
-export const DataRecordModal: React.FC<DataRecordModalProps> = ({ chunk, onClose }) => {
+export const DataRecordModal: React.FC<DataRecordModalProps> = ({
+  chunk,
+  onClose,
+}) => {
   const [copied, setCopied] = useState(false);
 
   if (!chunk) return null;
@@ -22,16 +25,46 @@ export const DataRecordModal: React.FC<DataRecordModalProps> = ({ chunk, onClose
   };
 
   const fieldExplanations = [
-    { field: 'id', role: 'Unique primary key for this chunk in the vector index or database.' },
-    { field: 'docId', role: 'Foreign key referencing the original source document.' },
-    { field: 'index', role: 'Zero-based sequential order of this chunk within the parent document.' },
-    { field: 'text', role: 'The raw text content sent to the embedding model and retrieved for LLM context.' },
-    { field: 'startChar / endChar', role: 'Exact character boundary offsets in the source text for precise UI highlighting.' },
-    { field: 'tokenCount', role: 'Estimated token count used to budget LLM context window limits.' },
-    { field: 'overlapWithPrev / overlapWithNext', role: 'Number of overlapping characters shared with adjacent chunks to prevent context loss.' },
-    { field: 'embedding', role: 'The dense numerical vector (array of floating-point numbers) representing semantic meaning.' },
-    { field: 'model', role: 'Name of the embedding model used to produce the vector coordinates.' },
-    { field: 'dimensions', role: 'Dimensionality of the vector space (e.g. 64, 768, 1536).' },
+    {
+      field: "id",
+      role: "Unique primary key for this chunk in the vector index or database.",
+    },
+    {
+      field: "docId",
+      role: "Foreign key referencing the original source document.",
+    },
+    {
+      field: "index",
+      role: "Zero-based sequential order of this chunk within the parent document.",
+    },
+    {
+      field: "text",
+      role: "The raw text content sent to the embedding model and retrieved for LLM context.",
+    },
+    {
+      field: "startChar / endChar",
+      role: "Exact character boundary offsets in the source text for precise UI highlighting.",
+    },
+    {
+      field: "tokenCount",
+      role: "Estimated token count used to budget LLM context window limits.",
+    },
+    {
+      field: "overlapWithPrev / overlapWithNext",
+      role: "Number of overlapping characters shared with adjacent chunks to prevent context loss.",
+    },
+    {
+      field: "embedding",
+      role: "The dense numerical vector (array of floating-point numbers) representing semantic meaning.",
+    },
+    {
+      field: "model",
+      role: "Name of the embedding model used to produce the vector coordinates.",
+    },
+    {
+      field: "dimensions",
+      role: "Dimensionality of the vector space (e.g. 64, 768, 1536).",
+    },
   ];
 
   return (
@@ -56,8 +89,12 @@ export const DataRecordModal: React.FC<DataRecordModalProps> = ({ chunk, onClose
               onClick={handleCopy}
               className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition"
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copied ? 'Copied JSON' : 'Copy JSON'}</span>
+              {copied ? (
+                <Check className="w-3.5 h-3.5 text-emerald-400" />
+              ) : (
+                <Copy className="w-3.5 h-3.5" />
+              )}
+              <span>{copied ? "Copied JSON" : "Copy JSON"}</span>
             </button>
             <button
               onClick={onClose}
@@ -78,8 +115,13 @@ export const DataRecordModal: React.FC<DataRecordModalProps> = ({ chunk, onClose
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
               {fieldExplanations.map((item, idx) => (
-                <div key={idx} className="bg-slate-900/60 p-2 rounded border border-slate-800/80">
-                  <span className="font-mono text-cyan-300 font-bold block">{item.field}</span>
+                <div
+                  key={idx}
+                  className="bg-slate-900/60 p-2 rounded border border-slate-800/80"
+                >
+                  <span className="font-mono text-cyan-300 font-bold block">
+                    {item.field}
+                  </span>
                   <span className="text-slate-400">{item.role}</span>
                 </div>
               ))}
@@ -88,7 +130,9 @@ export const DataRecordModal: React.FC<DataRecordModalProps> = ({ chunk, onClose
 
           {/* Raw JSON Code block */}
           <div className="space-y-1.5">
-            <span className="text-xs font-semibold text-slate-300">Raw JSON Payload</span>
+            <span className="text-xs font-semibold text-slate-300">
+              Raw JSON Payload
+            </span>
             <pre className="bg-slate-950 p-4 rounded-xl border border-slate-800 text-[11px] font-mono text-cyan-300 overflow-x-auto max-h-72 leading-relaxed">
               {jsonString}
             </pre>

@@ -2,7 +2,7 @@ export interface DocumentRecord {
   id: string;
   title: string;
   filename: string;
-  fileType: 'txt' | 'md' | 'other';
+  fileType: "txt" | "md" | "other";
   content: string;
   charCount: number;
   wordCount: number;
@@ -10,7 +10,12 @@ export interface DocumentRecord {
   createdAt: string;
 }
 
-export type ChunkStrategy = 'fixed' | 'fixed-overlap' | 'recursive' | 'paragraph' | 'sentence';
+export type ChunkStrategy =
+  | "fixed"
+  | "fixed-overlap"
+  | "recursive"
+  | "paragraph"
+  | "sentence";
 
 export interface ChunkOptions {
   strategy: ChunkStrategy;
@@ -38,7 +43,7 @@ export interface ChunkRecord {
   embeddedAt?: string;
 }
 
-export type EmbeddingProvider = 'educational' | 'gemini' | 'openai' | 'ollama';
+export type EmbeddingProvider = "educational" | "gemini" | "openai" | "ollama";
 
 export interface EmbeddingConfig {
   provider: EmbeddingProvider;

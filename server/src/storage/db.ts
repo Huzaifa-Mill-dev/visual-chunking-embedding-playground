@@ -1,13 +1,21 @@
-import fs from 'fs';
-import path from 'path';
-import { DocumentRecord, ChunkRecord, SessionState, ChunkOptions } from '../types.js';
+import fs from "fs";
+import path from "path";
+import {
+  DocumentRecord,
+  ChunkRecord,
+  SessionState,
+  ChunkOptions,
+} from "../types.js";
 
 interface DatabaseSchema {
   documents: Record<string, DocumentRecord>;
-  chunksByDoc: Record<string, {
-    options: ChunkOptions;
-    chunks: ChunkRecord[];
-  }>;
+  chunksByDoc: Record<
+    string,
+    {
+      options: ChunkOptions;
+      chunks: ChunkRecord[];
+    }
+  >;
   activeDocId: string | null;
 }
 
@@ -15,24 +23,27 @@ export class JsonDatabase {
   private filePath: string;
   private data: DatabaseSchema;
 
-  constructor(storageDir: string = './data') {
+  constructor(storageDir: string = "./data") {
     if (!fs.existsSync(storageDir)) {
       try {
         fs.mkdirSync(storageDir, { recursive: true });
       } catch (err) {}
     }
-    this.filePath = path.join(storageDir, 'db.json');
+    this.filePath = path.join(storageDir, "db.json");
     this.data = this.load();
   }
 
   private load(): DatabaseSchema {
     try {
       if (fs.existsSync(this.filePath)) {
-        const raw = fs.readFileSync(this.filePath, 'utf-8');
+        const raw = fs.readFileSync(this.filePath, "utf-8");
         return JSON.parse(raw);
       }
     } catch (err) {
-      console.warn('Failed to load database from disk, initializing fresh:', err);
+      console.warn(
+        "Failed to load database from disk, initializing fresh:",
+        err,
+      );
     }
     return {
       documents: {},
@@ -43,9 +54,13 @@ export class JsonDatabase {
 
   private save(): void {
     try {
-      fs.writeFileSync(this.filePath, JSON.stringify(this.data, null, 2), 'utf-8');
+      fs.writeFileSync(
+        this.filePath,
+        JSON.stringify(this.data, null, 2),
+        "utf-8",
+      );
     } catch (err) {
-      console.error('Failed to persist database:', err);
+      console.error("Failed to persist database:", err);
     }
   }
 
@@ -84,19 +99,30 @@ export class JsonDatabase {
   }
 
   // Chunks & Strategy
-  getDocChunks(docId: string): { options?: ChunkOptions; chunks: ChunkRecord[] } | null {
+  getDocChunks(
+    docId: string,
+  ): { options?: ChunkOptions; chunks: ChunkRecord[] } | null {
     return this.data.chunksByDoc[docId] || null;
   }
 
-  saveDocChunks(docId: string, options: ChunkOptions, chunks: ChunkRecord[]): void {
+  saveDocChunks(
+    docId: string,
+    options: ChunkOptions,
+    chunks: ChunkRecord[],
+  ): void {
     this.data.chunksByDoc[docId] = { options, chunks };
     this.save();
   }
 
-  updateChunkEmbedding(docId: string, chunkId: string, embedding: number[], model: string): void {
+  updateChunkEmbedding(
+    docId: string,
+    chunkId: string,
+    embedding: number[],
+    model: string,
+  ): void {
     const entry = this.data.chunksByDoc[docId];
     if (entry) {
-      const chunk = entry.chunks.find(c => c.id === chunkId);
+      const chunk = entry.chunks.find((c) => c.id === chunkId);
       if (chunk) {
         chunk.embedding = embedding;
         chunk.model = model;

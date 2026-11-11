@@ -1,36 +1,36 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  ChunkOptions, 
-  ChunkRecord, 
-  DocumentRecord, 
-  PCAResult, 
-  SimilarityResult, 
+import React, { useState, useEffect } from "react";
+import {
+  ChunkOptions,
+  ChunkRecord,
+  DocumentRecord,
+  PCAResult,
+  SimilarityResult,
   StrategyInfo,
-  CosineExplanation 
-} from './types/index.js';
-import { api, ApiSettings } from './utils/api.js';
+  CosineExplanation,
+} from "./types/index.js";
+import { api, ApiSettings } from "./utils/api.js";
 
-import { Navbar } from './components/Navbar.js';
-import { DocumentViewer } from './components/DocumentViewer.js';
-import { ChunkingConfigPanel } from './components/ChunkingConfigPanel.js';
-import { EmbeddingSection } from './components/EmbeddingSection.js';
-import { Embedding2DPlot } from './components/Embedding2DPlot.js';
-import { SimilaritySearchPanel } from './components/SimilaritySearchPanel.js';
-import { ChunkList } from './components/ChunkList.js';
-import { DataRecordModal } from './components/DataRecordModal.js';
-import { ConceptGuideModal } from './components/ConceptGuideModal.js';
-import { SettingsModal } from './components/SettingsModal.js';
-import { UploadModal } from './components/UploadModal.js';
+import { Navbar } from "./components/Navbar.js";
+import { DocumentViewer } from "./components/DocumentViewer.js";
+import { ChunkingConfigPanel } from "./components/ChunkingConfigPanel.js";
+import { EmbeddingSection } from "./components/EmbeddingSection.js";
+import { Embedding2DPlot } from "./components/Embedding2DPlot.js";
+import { SimilaritySearchPanel } from "./components/SimilaritySearchPanel.js";
+import { ChunkList } from "./components/ChunkList.js";
+import { DataRecordModal } from "./components/DataRecordModal.js";
+import { ConceptGuideModal } from "./components/ConceptGuideModal.js";
+import { SettingsModal } from "./components/SettingsModal.js";
+import { UploadModal } from "./components/UploadModal.js";
 
-import { 
-  Sparkles, 
-  Layers, 
-  Compass, 
-  Search, 
-  ArrowRight, 
-  CheckCircle, 
-  BookOpen 
-} from 'lucide-react';
+import {
+  Sparkles,
+  Layers,
+  Compass,
+  Search,
+  ArrowRight,
+  CheckCircle,
+  BookOpen,
+} from "lucide-react";
 
 export default function App() {
   // Documents & Active Doc
@@ -38,13 +38,15 @@ export default function App() {
   const [activeDoc, setActiveDoc] = useState<DocumentRecord | null>(null);
   const [chunks, setChunks] = useState<ChunkRecord[]>([]);
   const [chunkOptions, setChunkOptions] = useState<ChunkOptions>({
-    strategy: 'recursive',
+    strategy: "recursive",
     chunkSize: 350,
     chunkOverlap: 50,
   });
 
   // Strategies Metadata
-  const [strategies, setStrategies] = useState<Record<string, StrategyInfo>>({});
+  const [strategies, setStrategies] = useState<Record<string, StrategyInfo>>(
+    {},
+  );
 
   // Selection
   const [selectedChunkId, setSelectedChunkId] = useState<string | null>(null);
@@ -52,20 +54,28 @@ export default function App() {
   // Embedding & Search State
   const [pcaData, setPcaData] = useState<PCAResult | null>(null);
   const [searchResults, setSearchResults] = useState<SimilarityResult[]>([]);
-  const [topMatchExplanation, setTopMatchExplanation] = useState<CosineExplanation | null>(null);
-  const [cacheStats, setCacheStats] = useState<{ newlyGenerated: number; cached: number } | null>(null);
+  const [topMatchExplanation, setTopMatchExplanation] =
+    useState<CosineExplanation | null>(null);
+  const [cacheStats, setCacheStats] = useState<{
+    newlyGenerated: number;
+    cached: number;
+  } | null>(null);
 
   // API & Model Settings
   const [apiSettings, setApiSettings] = useState<ApiSettings>(() => {
-    const saved = localStorage.getItem('rag_playground_settings');
+    const saved = localStorage.getItem("rag_playground_settings");
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        if (parsed.model === "text-embedding-004") {
+          parsed.model = "gemini-embedding-001";
+        }
+        return parsed;
       } catch (err) {}
     }
     return {
-      provider: 'educational',
-      model: 'educational-semantic-64',
+      provider: "educational",
+      model: "educational-semantic-64",
     };
   });
 
@@ -73,7 +83,9 @@ export default function App() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
-  const [recordModalChunk, setRecordModalChunk] = useState<ChunkRecord | null>(null);
+  const [recordModalChunk, setRecordModalChunk] = useState<ChunkRecord | null>(
+    null,
+  );
 
   // Loading States
   const [isProcessingChunking, setIsProcessingChunking] = useState(false);
@@ -98,7 +110,7 @@ export default function App() {
           await loadDocumentDetails(targetId);
         }
       } catch (err: any) {
-        setErrorMessage(err.message || 'Failed to initialize playground');
+        setErrorMessage(err.message || "Failed to initialize playground");
       }
     }
     init();
@@ -106,7 +118,10 @@ export default function App() {
 
   // Save settings when changed
   useEffect(() => {
-    localStorage.setItem('rag_playground_settings', JSON.stringify(apiSettings));
+    localStorage.setItem(
+      "rag_playground_settings",
+      JSON.stringify(apiSettings),
+    );
   }, [apiSettings]);
 
   // Load Document Details
@@ -124,13 +139,13 @@ export default function App() {
       setTopMatchExplanation(null);
 
       // If document already has embedded chunks, trigger PCA
-      if (res.chunks?.some(c => c.embedding && c.embedding.length > 0)) {
+      if (res.chunks?.some((c) => c.embedding && c.embedding.length > 0)) {
         loadPCA(res.document.id);
       } else {
         setPcaData(null);
       }
     } catch (err: any) {
-      setErrorMessage(err.message || 'Failed to load document');
+      setErrorMessage(err.message || "Failed to load document");
     }
   };
 
@@ -148,13 +163,13 @@ export default function App() {
       setTopMatchExplanation(null);
 
       // Check if PCA can be refreshed
-      if (res.chunks.some(c => c.embedding && c.embedding.length > 0)) {
+      if (res.chunks.some((c) => c.embedding && c.embedding.length > 0)) {
         await loadPCA(activeDoc.id);
       } else {
         setPcaData(null);
       }
     } catch (err: any) {
-      setErrorMessage(err.message || 'Chunking failed');
+      setErrorMessage(err.message || "Chunking failed");
     } finally {
       setIsProcessingChunking(false);
     }
@@ -175,14 +190,14 @@ export default function App() {
 
       // Update selected chunk reference
       if (selectedChunkId) {
-        const updated = res.chunks.find(c => c.id === selectedChunkId);
+        const updated = res.chunks.find((c) => c.id === selectedChunkId);
         if (updated) setSelectedChunkId(updated.id);
       }
 
       // Compute PCA projection
       await loadPCA(activeDoc.id);
     } catch (err: any) {
-      setErrorMessage(err.message || 'Embedding generation failed');
+      setErrorMessage(err.message || "Embedding generation failed");
     } finally {
       setIsGeneratingEmbeddings(false);
     }
@@ -195,7 +210,7 @@ export default function App() {
       const res = await api.getPCA(docId);
       setPcaData(res);
     } catch (err) {
-      console.warn('PCA calculation skipped:', err);
+      console.warn("PCA calculation skipped:", err);
     } finally {
       setIsLoadingPCA(false);
     }
@@ -216,16 +231,21 @@ export default function App() {
         setSelectedChunkId(res.rankedResults[0].chunkId);
       }
     } catch (err: any) {
-      setErrorMessage(err.message || 'Semantic search failed');
+      setErrorMessage(err.message || "Semantic search failed");
     } finally {
       setIsSearching(false);
     }
   };
 
   // Upload New Document
-  const handleUploadDocument = async (data: { title: string; filename: string; content: string; fileType?: 'txt' | 'md' }) => {
+  const handleUploadDocument = async (data: {
+    title: string;
+    filename: string;
+    content: string;
+    fileType?: "txt" | "md";
+  }) => {
     const res = await api.uploadDocument(data);
-    setDocuments(prev => [res.document, ...prev]);
+    setDocuments((prev) => [res.document, ...prev]);
     setActiveDoc(res.document);
     setChunks(res.chunks);
     setChunkOptions(res.options);
@@ -244,7 +264,7 @@ export default function App() {
         await loadDocumentDetails(docsRes.documents[0].id);
       }
     } catch (err: any) {
-      setErrorMessage(err.message || 'Failed to reset sample documents');
+      setErrorMessage(err.message || "Failed to reset sample documents");
     }
   };
 
@@ -254,7 +274,8 @@ export default function App() {
     return api.compareChunks(activeDoc.id, chunkAId, chunkIdB);
   };
 
-  const selectedChunk = chunks.find(c => c.id === selectedChunkId) || chunks[0] || null;
+  const selectedChunk =
+    chunks.find((c) => c.id === selectedChunkId) || chunks[0] || null;
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans">
@@ -366,7 +387,7 @@ export default function App() {
             {/* 5. Semantic Search & Vector Cosine Similarity */}
             <SimilaritySearchPanel
               chunks={chunks}
-              docId={activeDoc?.id || ''}
+              docId={activeDoc?.id || ""}
               selectedChunkId={selectedChunkId}
               onSelectChunk={setSelectedChunkId}
               onSearch={handleSearch}
@@ -406,9 +427,7 @@ export default function App() {
       )}
 
       {isGuideOpen && (
-        <ConceptGuideModal
-          onClose={() => setIsGuideOpen(false)}
-        />
+        <ConceptGuideModal onClose={() => setIsGuideOpen(false)} />
       )}
 
       {recordModalChunk && (
@@ -421,7 +440,8 @@ export default function App() {
       {/* Footer */}
       <footer className="border-t border-slate-800 bg-slate-950/60 py-4 px-4 text-center text-xs text-slate-500">
         <p>
-          Visual Document Chunking & Embedding Playground — Built for understanding the mathematical foundations of LLMs and RAG.
+          Visual Document Chunking & Embedding Playground — Built for
+          understanding the mathematical foundations of LLMs and RAG.
         </p>
       </footer>
     </div>

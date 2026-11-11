@@ -1,16 +1,16 @@
-import { ChunkRecord, ChunkOptions } from '../types.js';
+import { ChunkRecord, ChunkOptions } from "../types.js";
 
 /**
  * STRATEGY: Fixed-Size Character Chunking (Without Overlap)
- * 
+ *
  * Educational Concept:
  * The simplest chunking method. The document is chopped into rigid windows
  * of exact character length (N characters) from start to end without overlap.
- * 
+ *
  * Strengths:
  * - Extremely fast, deterministic, simple O(N) complexity.
  * - Predictable chunk count: ceil(totalCharacters / chunkSize).
- * 
+ *
  * Weaknesses & Trade-offs:
  * - Blind to semantic boundaries: often cuts right through the middle of words,
  *   sentences, code blocks, or paragraphs.
@@ -20,7 +20,7 @@ import { ChunkRecord, ChunkOptions } from '../types.js';
 export function chunkFixed(
   docId: string,
   content: string,
-  options: ChunkOptions
+  options: ChunkOptions,
 ): ChunkRecord[] {
   const chunkSize = Math.max(20, options.chunkSize || 200);
   const chunks: ChunkRecord[] = [];
@@ -35,7 +35,8 @@ export function chunkFixed(
 
     // Approximate token count: ~4 characters per token in English
     const estimatedTokens = Math.max(1, Math.round(chunkText.length / 4));
-    const wordCount = chunkText.trim().length > 0 ? chunkText.trim().split(/\s+/).length : 0;
+    const wordCount =
+      chunkText.trim().length > 0 ? chunkText.trim().split(/\s+/).length : 0;
 
     chunks.push({
       id: `${docId}_chunk_${index}`,

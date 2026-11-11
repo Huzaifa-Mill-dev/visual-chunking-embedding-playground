@@ -1,11 +1,11 @@
-import { DocumentRecord } from '../types.js';
+import { DocumentRecord } from "../types.js";
 
 export const SAMPLE_DOCUMENTS: DocumentRecord[] = [
   {
-    id: 'sample-rag-overview',
-    title: 'Understanding RAG and Vector Retrieval',
-    filename: 'rag-and-vector-retrieval.md',
-    fileType: 'md',
+    id: "sample-rag-overview",
+    title: "Understanding RAG and Vector Retrieval",
+    filename: "rag-and-vector-retrieval.md",
+    fileType: "md",
     createdAt: new Date().toISOString(),
     charCount: 0, // computed below
     wordCount: 0,
@@ -37,13 +37,13 @@ When a user submits a question, the query undergoes identical vector transformat
 
 cosine_similarity = (A · B) / (||A|| * ||B||)
 
-The highest-scoring chunks are retrieved and injected into the final system prompt as grounded context, enabling the model to generate factually verifiable answers with exact source citations.`
+The highest-scoring chunks are retrieved and injected into the final system prompt as grounded context, enabling the model to generate factually verifiable answers with exact source citations.`,
   },
   {
-    id: 'sample-photosynthesis',
-    title: 'The Biochemical Machinery of Photosynthesis',
-    filename: 'photosynthesis-biology.txt',
-    fileType: 'txt',
+    id: "sample-photosynthesis",
+    title: "The Biochemical Machinery of Photosynthesis",
+    filename: "photosynthesis-biology.txt",
+    fileType: "txt",
     createdAt: new Date().toISOString(),
     charCount: 0,
     wordCount: 0,
@@ -59,13 +59,13 @@ In the light reactions, photon energy is absorbed by specialized pigment molecul
 
 Water molecules undergo photolysis, splitting into oxygen gas, protons, and replacement electrons. The high-energy proton gradient generated across the thylakoid membrane drives ATP synthase, producing adenosine triphosphate (ATP) and reducing NADP+ into NADPH.
 
-During the subsequent Calvin cycle, occurring within the stroma, the catalytic enzyme RuBisCO facilitates carbon fixation. By attaching atmospheric carbon dioxide to ribulose-1,5-bisphosphate, the cycle synthesizes glyceraldehyde-3-phosphate, which plants subsequently assemble into glucose, sucrose, and cellulose.`
+During the subsequent Calvin cycle, occurring within the stroma, the catalytic enzyme RuBisCO facilitates carbon fixation. By attaching atmospheric carbon dioxide to ribulose-1,5-bisphosphate, the cycle synthesizes glyceraldehyde-3-phosphate, which plants subsequently assemble into glucose, sucrose, and cellulose.`,
   },
   {
-    id: 'sample-distributed-cap',
-    title: 'Distributed Systems & The CAP Theorem',
-    filename: 'distributed-systems-cap.md',
-    fileType: 'md',
+    id: "sample-distributed-cap",
+    title: "Distributed Systems & The CAP Theorem",
+    filename: "distributed-systems-cap.md",
+    fileType: "md",
     createdAt: new Date().toISOString(),
     charCount: 0,
     wordCount: 0,
@@ -87,13 +87,13 @@ The distributed cluster continues to function despite an arbitrary number of mes
 
 In real-world physical networks, network partitions (P) are unavoidable. Fiber optic cables get severed, switches fail, and packets drop. Therefore, distributed architects do not actually choose between C, A, and P. Instead, when a network partition inevitably occurs, the system must decide between Consistency (CP) and Availability (AP).
 
-In a CP system, nodes refuse to answer writes until consensus is restored, prioritizing correctness over uptime. In an AP system, nodes continue serving read and write traffic locally, adopting eventual consistency algorithms like CRDTs or vector clocks to reconcile conflicting updates after network healing.`
+In a CP system, nodes refuse to answer writes until consensus is restored, prioritizing correctness over uptime. In an AP system, nodes continue serving read and write traffic locally, adopting eventual consistency algorithms like CRDTs or vector clocks to reconcile conflicting updates after network healing.`,
   },
   {
-    id: 'sample-ai-agents',
-    title: 'Autonomous AI Agents and Tool Orchestration',
-    filename: 'ai-agents-evolution.md',
-    fileType: 'md',
+    id: "sample-ai-agents",
+    title: "Autonomous AI Agents and Tool Orchestration",
+    filename: "ai-agents-evolution.md",
+    fileType: "md",
     createdAt: new Date().toISOString(),
     charCount: 0,
     wordCount: 0,
@@ -114,13 +114,13 @@ Agents interact with external tools through structured schemas (such as OpenAPI 
 The model follows a continuous Reason -> Act -> Observe feedback loop. If an executed command fails or yields unexpected output, the agent parses the error, updates its internal hypothesis, and generates a corrective follow-up action.
 
 4. Memory Architecture
-Short-term memory corresponds to context window state, maintaining immediate dialog and observation history. Long-term memory utilizes semantic vector retrieval to access historical experiences, user preferences, and enterprise documentation on demand.`
-  }
+Short-term memory corresponds to context window state, maintaining immediate dialog and observation history. Long-term memory utilizes semantic vector retrieval to access historical experiences, user preferences, and enterprise documentation on demand.`,
+  },
 ];
 
 // Initialize counts
 for (const doc of SAMPLE_DOCUMENTS) {
   doc.charCount = doc.content.length;
   doc.wordCount = doc.content.trim().split(/\s+/).length;
-  doc.lineCount = doc.content.split('\n').length;
+  doc.lineCount = doc.content.split("\n").length;
 }

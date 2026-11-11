@@ -19,8 +19,14 @@ export interface IEmbeddingProvider {
   name: string;
   defaultModel: string;
   defaultDimensions: number;
-  embedText(text: string, options?: { apiKey?: string; model?: string }): Promise<EmbeddingVectorResult>;
-  embedBatch(texts: string[], options?: { apiKey?: string; model?: string }): Promise<EmbeddingVectorResult[]>;
+  embedText(
+    text: string,
+    options?: { apiKey?: string; model?: string },
+  ): Promise<EmbeddingVectorResult>;
+  embedBatch(
+    texts: string[],
+    options?: { apiKey?: string; model?: string },
+  ): Promise<EmbeddingVectorResult[]>;
 }
 
 /**
@@ -50,7 +56,7 @@ export function computeVectorStats(vector: number[]): VectorStats {
     min: Number(min.toFixed(5)),
     max: Number(max.toFixed(5)),
     mean: Number((sum / vector.length).toFixed(5)),
-    sample: vector.slice(0, 12).map(v => Number(v.toFixed(5))),
+    sample: vector.slice(0, 12).map((v) => Number(v.toFixed(5))),
   };
 }
 
@@ -66,5 +72,5 @@ export function normalizeVector(vec: number[]): number[] {
   }
   norm = Math.sqrt(norm);
   if (norm === 0) return vec.slice();
-  return vec.map(v => v / norm);
+  return vec.map((v) => v / norm);
 }

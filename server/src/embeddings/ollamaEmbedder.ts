@@ -1,22 +1,32 @@
-import { IEmbeddingProvider, EmbeddingVectorResult, normalizeVector } from './provider.js';
+import {
+  IEmbeddingProvider,
+  EmbeddingVectorResult,
+  normalizeVector,
+} from "./provider.js";
 
 /**
  * Ollama Local Embedding Provider
  * Default Model: nomic-embed-text (768 Dimensions) or all-minilm (384 Dimensions)
  */
 export class OllamaEmbedder implements IEmbeddingProvider {
-  id = 'ollama';
-  name = 'Ollama (Local Models)';
-  defaultModel = 'nomic-embed-text';
+  id = "ollama";
+  name = "Ollama (Local Models)";
+  defaultModel = "nomic-embed-text";
   defaultDimensions = 768;
 
-  async embedText(text: string, options?: { endpoint?: string; model?: string }): Promise<EmbeddingVectorResult> {
-    const endpoint = options?.endpoint || process.env.OLLAMA_ENDPOINT || 'http://localhost:11434';
+  async embedText(
+    text: string,
+    options?: { endpoint?: string; model?: string },
+  ): Promise<EmbeddingVectorResult> {
+    const endpoint =
+      options?.endpoint ||
+      process.env.OLLAMA_ENDPOINT ||
+      "http://localhost:11434";
     const model = options?.model || this.defaultModel;
 
     const response = await fetch(`${endpoint}/api/embeddings`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ model, prompt: text }),
     });
 
@@ -37,7 +47,10 @@ export class OllamaEmbedder implements IEmbeddingProvider {
     };
   }
 
-  async embedBatch(texts: string[], options?: { endpoint?: string; model?: string }): Promise<EmbeddingVectorResult[]> {
-    return Promise.all(texts.map(t => this.embedText(t, options)));
+  async embedBatch(
+    texts: string[],
+    options?: { endpoint?: string; model?: string },
+  ): Promise<EmbeddingVectorResult[]> {
+    return Promise.all(texts.map((t) => this.embedText(t, options)));
   }
 }

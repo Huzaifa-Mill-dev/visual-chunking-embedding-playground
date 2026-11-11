@@ -1,4 +1,4 @@
-import { ChunkRecord, PCAProjection } from '../types.js';
+import { ChunkRecord, PCAProjection } from "../types.js";
 
 export interface PCAResult {
   points: PCAProjection[];
@@ -8,27 +8,29 @@ export interface PCAResult {
 
 /**
  * Principal Component Analysis (PCA) 2D Projection
- * 
+ *
  * Educational Concept:
  * Real embeddings live in high-dimensional space (e.g. 64-D, 768-D, 1536-D).
  * Humans cannot visualize geometry beyond 3 dimensions.
- * 
+ *
  * PCA is a mathematical technique that finds the directions (Principal Components)
  * of MAXIMUM VARIANCE in the data cloud.
- * 
+ *
  * - Principal Component 1 (PC1): The axis along which the data varies the most.
  * - Principal Component 2 (PC2): The axis orthogonal to PC1 with the second-highest variance.
- * 
+ *
  * Important Educational Caveat:
  * A 2D projection compresses high-dimensional geometry. Distances in 2D give intuition
  * about clusters and neighborhoods, but do not capture 100% of the true high-dimensional distance.
  */
 export function computePCA2D(chunks: ChunkRecord[]): PCAResult {
-  const validChunks = chunks.filter(c => c.embedding && c.embedding.length > 0);
+  const validChunks = chunks.filter(
+    (c) => c.embedding && c.embedding.length > 0,
+  );
 
   if (validChunks.length < 2) {
     return {
-      points: validChunks.map(c => ({
+      points: validChunks.map((c) => ({
         chunkId: c.id,
         chunkIndex: c.index,
         x: 0,
@@ -36,7 +38,8 @@ export function computePCA2D(chunks: ChunkRecord[]): PCAResult {
         text: c.text,
       })),
       explainedVarianceRatio: [1.0, 0.0],
-      educationalNote: 'Need at least 2 embedded chunks to compute Principal Component projection.',
+      educationalNote:
+        "Need at least 2 embedded chunks to compute Principal Component projection.",
     };
   }
 
@@ -67,11 +70,15 @@ export function computePCA2D(chunks: ChunkRecord[]): PCAResult {
   }
 
   // 3. Power Iteration to find Principal Component 1 (eigenvector of X^T * X)
-  function powerIteration(data: number[][], deflatedVector?: number[], numIterations = 30): { vector: number[]; eigenvalue: number } {
+  function powerIteration(
+    data: number[][],
+    deflatedVector?: number[],
+    numIterations = 30,
+  ): { vector: number[]; eigenvalue: number } {
     let v = new Array(D).fill(0).map((_, idx) => Math.sin(idx + 1));
     // Normalize initial vector
     let vNorm = Math.sqrt(v.reduce((acc, val) => acc + val * val, 0));
-    v = v.map(val => val / vNorm);
+    v = v.map((val) => val / vNorm);
 
     for (let iter = 0; iter < numIterations; iter++) {
       // If deflating against PC1, ensure orthogonality (Gram-Schmidt)
@@ -101,7 +108,7 @@ export function computePCA2D(chunks: ChunkRecord[]): PCAResult {
       // Normalize w
       const norm = Math.sqrt(w.reduce((acc, val) => acc + val * val, 0));
       if (norm === 0) break;
-      v = w.map(val => val / norm);
+      v = w.map((val) => val / norm);
     }
 
     // Eigenvalue is v^T * (X^T * X) * v = ||X * v||^2
@@ -133,7 +140,10 @@ export function computePCA2D(chunks: ChunkRecord[]): PCAResult {
 
   // Project data onto PC1 and PC2
   const rawCoords: { x: number; y: number; chunk: ChunkRecord }[] = [];
-  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  let minX = Infinity,
+    maxX = -Infinity,
+    minY = Infinity,
+    maxY = -Infinity;
 
   for (let i = 0; i < N; i++) {
     let x = 0;
@@ -153,7 +163,7 @@ export function computePCA2D(chunks: ChunkRecord[]): PCAResult {
   const spanX = maxX - minX || 1;
   const spanY = maxY - minY || 1;
 
-  const points: PCAProjection[] = rawCoords.map(item => ({
+  const points: PCAProjection[] = rawCoords.map((item) => ({
     chunkId: item.chunk.id,
     chunkIndex: item.chunk.index,
     x: ((item.x - minX) / spanX) * 2 - 1,

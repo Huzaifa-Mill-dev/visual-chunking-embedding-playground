@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
-import { ChunkRecord } from '../types/index.js';
-import { getChunkColor } from '../utils/colors.js';
-import { 
-  Layers, 
-  Search, 
-  Code, 
-  Sparkles, 
+import React, { useState } from "react";
+import { ChunkRecord } from "../types/index.js";
+import { getChunkColor } from "../utils/colors.js";
+import {
+  Layers,
+  Search,
+  Code,
+  Sparkles,
   ArrowRight,
   Hash,
-  Clock
-} from 'lucide-react';
+  Clock,
+} from "lucide-react";
 
 interface ChunkListProps {
   chunks: ChunkRecord[];
@@ -24,11 +24,12 @@ export const ChunkList: React.FC<ChunkListProps> = ({
   onSelectChunk,
   onOpenRecord,
 }) => {
-  const [filterText, setFilterText] = useState('');
+  const [filterText, setFilterText] = useState("");
 
-  const filteredChunks = chunks.filter(c => 
-    c.text.toLowerCase().includes(filterText.toLowerCase()) ||
-    c.index.toString().includes(filterText)
+  const filteredChunks = chunks.filter(
+    (c) =>
+      c.text.toLowerCase().includes(filterText.toLowerCase()) ||
+      c.index.toString().includes(filterText),
   );
 
   return (
@@ -40,7 +41,9 @@ export const ChunkList: React.FC<ChunkListProps> = ({
             <Layers className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-slate-200">Generated Chunks</h3>
+            <h3 className="text-sm font-semibold text-slate-200">
+              Generated Chunks
+            </h3>
             <p className="text-xs text-slate-400">
               {chunks.length} total segments
             </p>
@@ -84,7 +87,9 @@ export const ChunkList: React.FC<ChunkListProps> = ({
                 {/* Header row */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className={`px-2 py-0.5 rounded text-[11px] font-bold border ${color.badge}`}>
+                    <span
+                      className={`px-2 py-0.5 rounded text-[11px] font-bold border ${color.badge}`}
+                    >
                       Chunk #{chunk.index}
                     </span>
                     <span className="text-[10px] text-slate-400 font-mono">
@@ -99,7 +104,9 @@ export const ChunkList: React.FC<ChunkListProps> = ({
                         {chunk.dimensions}-D
                       </span>
                     ) : (
-                      <span className="text-[10px] text-slate-500">Unembedded</span>
+                      <span className="text-[10px] text-slate-500">
+                        Unembedded
+                      </span>
                     )}
 
                     <button
@@ -122,7 +129,9 @@ export const ChunkList: React.FC<ChunkListProps> = ({
 
                 {/* Footer metadata */}
                 <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1 border-t border-slate-800/60 font-mono">
-                  <span>{chunk.charCount} chars · ~{chunk.tokenCount} tokens</span>
+                  <span>
+                    {chunk.charCount} chars · ~{chunk.tokenCount} tokens
+                  </span>
                   {chunk.overlapWithPrev > 0 && (
                     <span className="text-amber-400">
                       ← {chunk.overlapWithPrev}c overlap

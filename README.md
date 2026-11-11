@@ -1,4 +1,5 @@
 # Visual Document Chunking & Embedding Playground
+
 > An interactive educational workbench demonstrating how raw documents are transformed into text chunks, converted into high-dimensional vector embeddings, and retrieved using semantic similarity for Retrieval-Augmented Generation (RAG).
 
 ---
@@ -8,6 +9,7 @@
 When developers start learning LLMs and RAG, critical transformations happen invisibly behind black-box frameworks (like LangChain, LlamaIndex, or vector database SDKs).
 
 This project makes **every step of the pipeline visible, inspectable, and interactive**:
+
 1. **Document Ingestion:** See raw character, word, and line statistics.
 2. **Text Chunking:** Watch how sliding windows, overlaps, and recursive separators partition the document.
 3. **Visual Chunk Boundary Map:** Inspect color-coded boundaries and overlapping margins directly within the original document.
@@ -21,28 +23,36 @@ This project makes **every step of the pipeline visible, inspectable, and intera
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - **Node.js**: v18+ (tested on Node v24)
 - **npm** (or pnpm / yarn)
 
 ### 1. Installation
+
 Clone or navigate to the project directory:
+
 ```bash
 cd "C:\Users\alefi\.gemini\antigravity\scratch\chunking-embedding-playground"
 npm install
 ```
 
 ### 2. Development Mode
+
 Runs both the Express API backend (`localhost:3001`) and the Vite React frontend (`localhost:5173`) concurrently:
+
 ```bash
 npm run dev
 ```
+
 Open **[http://localhost:5173](http://localhost:5173)** in your browser.
 
 ### 3. Production Build & Run
+
 ```bash
 npm run build
 npm start
 ```
+
 The server will host the full application at **[http://localhost:3001](http://localhost:3001)**.
 
 ---
@@ -50,7 +60,9 @@ The server will host the full application at **[http://localhost:3001](http://lo
 ## 🧩 Architectural Decisions & Rationale
 
 ### 1. Transparent Implementations vs. Black-Box Libraries
+
 In production systems, developers often call `RecursiveCharacterTextSplitter.from_tiktoken_encoder()`. While convenient, this obscures:
+
 - Why certain split points are chosen.
 - Exactly which characters are repeated across chunk overlaps.
 - How chunk offsets map back to original document positions.
@@ -58,29 +70,36 @@ In production systems, developers often call `RecursiveCharacterTextSplitter.fro
 **Decision:** We implemented all five chunking algorithms (`fixed`, `fixed-overlap`, `recursive`, `paragraph`, `sentence`) from scratch in TypeScript with extensive documentation. Every chunk explicitly records its `[startChar, endChar]` offsets, character count, token estimate, and overlap with adjacent chunks.
 
 ### 2. Built-in Local Educational Vectorizer (Zero API Keys Required)
+
 Relying strictly on paid API keys (OpenAI or Gemini) creates friction for learners and fails when offline or quota-limited.
 
 **Decision:** We created an **Educational Dense Vectorizer (64 Dimensions)** that:
+
 - Runs 100% locally with zero external network requests.
 - Maps domain topics (biology, computing, RAG, AI agents) onto calibrated vector dimensions.
 - Normalizes vectors onto the 64-dimensional unit hypersphere ($L_2\text{ norm} = 1.0$).
 - Produces realistic cosine similarity scores: related concepts (e.g. "plants convert light" and "chloroplasts produce glucose") project to high cosine similarity (>0.85), while unrelated topics project near orthogonality (~0.15).
 
-Users can also seamlessly switch to **Google Gemini (`text-embedding-004`)**, **OpenAI (`text-embedding-3-small`)**, or **Ollama** in the Settings modal!
+Users can also seamlessly switch to **Google Gemini (`gemini-embedding-001`)**, **OpenAI (`text-embedding-3-small`)**, or **Ollama** in the Settings modal!
 
 ### 3. Secure API Key Management
+
 - API keys are entered via the client UI or stored in server `.env` (`GEMINI_API_KEY`, `OPENAI_API_KEY`).
 - Keys are transmitted via request headers (`x-api-key`) directly to the backend Express server, which proxies all API calls.
 - Keys are **never exposed** in client bundles, public HTML, or client-side storage.
 
 ### 4. Deterministic Embedding Cache
+
 Generating embeddings through commercial APIs costs time and tokens.
+
 - We implemented an SHA-256 hash-based embedding cache:
   $$\text{Key} = \text{SHA256}(\text{provider} + \text{model} + \text{chunkText})$$
 - When you re-chunk or re-load documents, existing embeddings are retrieved instantly from disk (`data/embedding_cache.json`), saving API quotas.
 
 ### 5. Principal Component Analysis (PCA) 2D Projection
+
 High-dimensional vectors cannot be directly visualized by human eyes.
+
 - We implemented a mathematical PCA module in pure TypeScript using Power Iteration to compute the top two eigenvectors (Principal Component 1 and 2).
 - The UI displays the **Explained Variance Ratio** for both axes and plots all chunks on an interactive SVG canvas.
 - Clicking any point in the 2D plot selects that chunk across the Document Boundary Map and the Chunk Inspector.
@@ -91,13 +110,13 @@ High-dimensional vectors cannot be directly visualized by human eyes.
 
 ### 1. Chunking Strategies Compared
 
-| Strategy | Logic | Pros | Cons | Ideal For |
-| :--- | :--- | :--- | :--- | :--- |
-| **Fixed Size** | Rigid window of $N$ characters, step size = $N$ | Fastest, uniform length, zero redundancy | Cuts words in half, destroys sentence context | Raw byte streams, baseline benchmarking |
-| **Sliding Window Overlap** | Window of $N$ chars, step size = $(N - \text{overlap})$ | Guarantees facts near boundaries are retained | Duplicates text, increases token costs | Fixed-context windows, sensor logs |
-| **Recursive Splitting** | Priority order: `\n\n` → `\n` → `. ` → ` ` → `""` | Preserves paragraphs and sentences | Variable chunk lengths | General documentation, Markdown, RAG |
-| **Paragraph-Based** | Splits on `\n\n+`, groups small paragraphs | Maximum semantic cohesion | Uneven chunk sizes | Essays, articles, legal docs |
-| **Sentence-Based** | Splits on sentence boundaries (`.! ?`) | Preserves complete propositions | Needs good sentence punctuation | FAQ lists, dialogue transcripts |
+| Strategy                   | Logic                                                   | Pros                                          | Cons                                          | Ideal For                               |
+| :------------------------- | :------------------------------------------------------ | :-------------------------------------------- | :-------------------------------------------- | :-------------------------------------- |
+| **Fixed Size**             | Rigid window of $N$ characters, step size = $N$         | Fastest, uniform length, zero redundancy      | Cuts words in half, destroys sentence context | Raw byte streams, baseline benchmarking |
+| **Sliding Window Overlap** | Window of $N$ chars, step size = $(N - \text{overlap})$ | Guarantees facts near boundaries are retained | Duplicates text, increases token costs        | Fixed-context windows, sensor logs      |
+| **Recursive Splitting**    | Priority order: `\n\n` → `\n` → `. ` → ` ` → `""`       | Preserves paragraphs and sentences            | Variable chunk lengths                        | General documentation, Markdown, RAG    |
+| **Paragraph-Based**        | Splits on `\n\n+`, groups small paragraphs              | Maximum semantic cohesion                     | Uneven chunk sizes                            | Essays, articles, legal docs            |
+| **Sentence-Based**         | Splits on sentence boundaries (`.! ?`)                  | Preserves complete propositions               | Needs good sentence punctuation               | FAQ lists, dialogue transcripts         |
 
 ### 2. The Math of Cosine Similarity
 
@@ -140,7 +159,7 @@ chunking-embedding-playground/
 │       ├── embeddings/          # Embedding Engine
 │       │   ├── provider.ts      # Provider interface & vector utilities
 │       │   ├── educationalEmbedder.ts # Local 64-D semantic vectorizer
-│       │   ├── geminiEmbedder.ts# Google Gemini text-embedding-004
+│       │   ├── geminiEmbedder.ts# Google Gemini gemini-embedding-001
 │       │   ├── openaiEmbedder.ts# OpenAI text-embedding-3-small
 │       │   ├── ollamaEmbedder.ts# Local Ollama connection
 │       │   └── cache.ts         # Disk & memory hash cache
@@ -194,4 +213,5 @@ This project is built as Phase 1 & Phase 2 of a modern AI engineering curriculum
 ---
 
 ## 📜 License
+
 MIT License. Built for hands-on AI engineering education.

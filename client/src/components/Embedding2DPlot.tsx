@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { ChunkRecord, PCAResult } from '../types/index.js';
-import { getChunkColor } from '../utils/colors.js';
-import { Compass, Info, RefreshCw, ZoomIn, ZoomOut, Move } from 'lucide-react';
+import React, { useState } from "react";
+import { ChunkRecord, PCAResult } from "../types/index.js";
+import { getChunkColor } from "../utils/colors.js";
+import { Compass, Info, RefreshCw, ZoomIn, ZoomOut, Move } from "lucide-react";
 
 interface Embedding2DPlotProps {
   pcaData: PCAResult | null;
@@ -33,15 +33,20 @@ export const Embedding2DPlot: React.FC<Embedding2DPlotProps> = ({
   const height = 360;
   const padding = 45;
 
-  const validChunksWithEmbedding = chunks.filter(c => c.embedding && c.embedding.length > 0);
+  const validChunksWithEmbedding = chunks.filter(
+    (c) => c.embedding && c.embedding.length > 0,
+  );
 
   if (validChunksWithEmbedding.length < 2) {
     return (
       <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm flex flex-col justify-center items-center h-80 text-center text-slate-500">
         <Compass className="w-10 h-10 mb-2 stroke-[1.5] text-slate-600" />
-        <p className="text-sm font-medium text-slate-400">PCA 2D Projection Unavailable</p>
+        <p className="text-sm font-medium text-slate-400">
+          PCA 2D Projection Unavailable
+        </p>
         <p className="text-xs text-slate-500 max-w-sm mt-1">
-          At least 2 chunks must have generated vector embeddings to compute Principal Component Analysis.
+          At least 2 chunks must have generated vector embeddings to compute
+          Principal Component Analysis.
         </p>
       </div>
     );
@@ -57,8 +62,12 @@ export const Embedding2DPlot: React.FC<Embedding2DPlotProps> = ({
     return height - padding - ((val + 1) / 2) * (height - 2 * padding);
   };
 
-  const pc1Variance = pcaData ? (pcaData.explainedVarianceRatio[0] * 100).toFixed(1) : '0';
-  const pc2Variance = pcaData ? (pcaData.explainedVarianceRatio[1] * 100).toFixed(1) : '0';
+  const pc1Variance = pcaData
+    ? (pcaData.explainedVarianceRatio[0] * 100).toFixed(1)
+    : "0";
+  const pc2Variance = pcaData
+    ? (pcaData.explainedVarianceRatio[1] * 100).toFixed(1)
+    : "0";
 
   return (
     <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm flex flex-col gap-3">
@@ -69,9 +78,12 @@ export const Embedding2DPlot: React.FC<Embedding2DPlotProps> = ({
             <Compass className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-slate-200">2D Embedding Projection (PCA)</h3>
+            <h3 className="text-sm font-semibold text-slate-200">
+              2D Embedding Projection (PCA)
+            </h3>
             <p className="text-xs text-slate-400">
-              Dimensionality reduction projecting high-dimensional vectors onto Principal Components
+              Dimensionality reduction projecting high-dimensional vectors onto
+              Principal Components
             </p>
           </div>
         </div>
@@ -82,7 +94,9 @@ export const Embedding2DPlot: React.FC<Embedding2DPlotProps> = ({
           title="Recalculate PCA Projection"
           className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition"
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
+          <RefreshCw
+            className={`w-3.5 h-3.5 ${isLoading ? "animate-spin" : ""}`}
+          />
         </button>
       </div>
 
@@ -209,7 +223,9 @@ export const Embedding2DPlot: React.FC<Embedding2DPlotProps> = ({
         {hoveredPoint && (
           <div className="absolute top-3 right-3 bg-slate-900/95 border border-cyan-500/40 rounded-lg p-2.5 max-w-xs shadow-xl backdrop-blur text-xs pointer-events-none z-10 animate-fadeIn">
             <div className="flex items-center justify-between pb-1 mb-1 border-b border-slate-800">
-              <span className="font-bold text-cyan-300">Chunk #{hoveredPoint.chunkIndex}</span>
+              <span className="font-bold text-cyan-300">
+                Chunk #{hoveredPoint.chunkIndex}
+              </span>
               <span className="font-mono text-[10px] text-slate-400">
                 ({hoveredPoint.x.toFixed(2)}, {hoveredPoint.y.toFixed(2)})
               </span>
@@ -229,10 +245,16 @@ export const Embedding2DPlot: React.FC<Embedding2DPlotProps> = ({
             <strong className="text-slate-300 block mb-0.5">
               Understanding High-Dimensional Projections:
             </strong>
-            Embeddings exist in high dimensions (e.g. 64 or 768 dimensions), which cannot be directly seen by human eyes.
-            Principal Component Analysis (PCA) mathematically finds the 2 axes that capture the maximum geometric variance.
-            Chunks closer together in this 2D plane share semantic topic features.
-            <em> Remember: 2D projection provides intuitive cluster visualization, but compresses the true distances.</em>
+            Embeddings exist in high dimensions (e.g. 64 or 768 dimensions),
+            which cannot be directly seen by human eyes. Principal Component
+            Analysis (PCA) mathematically finds the 2 axes that capture the
+            maximum geometric variance. Chunks closer together in this 2D plane
+            share semantic topic features.
+            <em>
+              {" "}
+              Remember: 2D projection provides intuitive cluster visualization,
+              but compresses the true distances.
+            </em>
           </div>
         </div>
       </div>

@@ -84,7 +84,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </label>
 
               <label
-                onClick={() => setLocalSettings({ ...localSettings, provider: 'gemini', model: 'text-embedding-004' })}
+                onClick={() => setLocalSettings({ ...localSettings, provider: 'gemini', model: 'gemini-embedding-001' })}
                 className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition ${
                   localSettings.provider === 'gemini'
                     ? 'bg-cyan-950/40 border-cyan-500/60 ring-1 ring-cyan-500/30'
@@ -102,7 +102,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-slate-200">Google Gemini API (768-D)</span>
                     <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-mono">
-                      text-embedding-004
+                      gemini-embedding-001
                     </span>
                   </div>
                   <p className="text-slate-400 mt-0.5">
